@@ -157,6 +157,11 @@ void Server::parseCommand(Client* client, const std::string& line) {
 
     std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 
+
+    if (command == "QUIT") {
+        handleQuitCommand(*this, client, params);
+        return;
+    }
     // Allow only authentication commands before authentication is complete
     if (!client->getHasProvidedPassword() || !client->getHasNickname() || !client->getHasUsername()) {
         if (command != "PASS" && command != "NICK" && command != "USER") {
@@ -183,8 +188,6 @@ void Server::parseCommand(Client* client, const std::string& line) {
         } else {
             sendError(client->GetFd(), "461", "PRIVMSG :Not enough parameters");
         }
-    } else if (command == "QUIT") {
-        handleQuitCommand(*this, client, params);
     } else {
         sendError(client->GetFd(), "421", command + " :Unknown command");
     }
