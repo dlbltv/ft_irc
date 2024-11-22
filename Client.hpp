@@ -12,6 +12,9 @@ private:
     std::string Nickname;
     std::string Username;
     bool isAuthenticated;
+    bool hasProvidedPassword;
+    bool hasNickname;
+    bool hasUsername;
 
 public:
     std::string buffer;  // For incoming message buffering
@@ -33,6 +36,18 @@ public:
 
     void setAuthenticationStatus(bool status);
     bool getAuthenticationStatus();
+
+    void setHasProvidedPassword(bool status);
+    bool getHasProvidedPassword();
+
+    void setHasNickname(bool status);
+    bool getHasNickname();
+
+    void setHasUsername(bool status);
+    bool getHasUsername();
+
+
+
 
 };
 

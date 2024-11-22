@@ -17,10 +17,16 @@ void handlePassCommand(Server& server, Client* client, const std::string& pass) 
         close(client->GetFd());
     } else {
         client->setAuthenticationStatus(true);
+         client->setHasProvidedPassword(true);
+        server.sendNotice(client->GetFd(), "Password accepted. Please set your NICK.");
     }
 }
 
 void handleNickCommand(Server& server, Client* client, const std::string& nickname) {
+    if (!client->getHasProvidedPassword()) {
+        server.sendError(client->GetFd(), "451", "NICK :You must provide PASS first");
+        return;
+    }
     if (nickname.empty()) {
         server.sendError(client->GetFd(), "431", "NICK :No nickname given");
         return;
@@ -31,13 +37,19 @@ void handleNickCommand(Server& server, Client* client, const std::string& nickna
     }
 
     client->setNickname(nickname);
-
-    if (client->getAuthenticationStatus() && !client->getUsername().empty()) {
-        server.sendWelcomeMessage(client);
-    }
+    client->setHasNickname(true);
+    server.sendNotice(client->GetFd(), "Nickname set. Please provide your USER details.");
 }
 
 void handleUserCommand(Server& server, Client* client, const std::string& params) {
+    if (!client->getHasProvidedPassword()) {
+        server.sendError(client->GetFd(), "451", "USER :You must provide PASS first");
+        return;
+    }
+    if (!client->getHasNickname()) {
+        server.sendError(client->GetFd(), "451", "USER :You must set a NICK first");
+        return;
+    }
     if (params.empty()) {
         server.sendError(client->GetFd(), "461", "USER :Not enough parameters");
         return;
@@ -58,6 +70,7 @@ void handleUserCommand(Server& server, Client* client, const std::string& params
     }
 
     client->setUsername(username);
+    client->setHasUsername(true);
 
     if (client->getAuthenticationStatus() && !client->getNickname().empty()) {
         server.sendWelcomeMessage(client);
@@ -123,7 +136,6 @@ void handlePrivmsgCommand(Server& server, Client* sender, const std::string& tar
         send(recipient->GetFd(), formattedMessage.c_str(), formattedMessage.size(), 0);
     }
 }
-
 
 void handleQuitCommand(Server& server, Client* client, const std::string& message) {
     if (!client) {

@@ -1,6 +1,6 @@
 #include "Client.hpp"
 
-Client::Client() : fd(-1), isAuthenticated(false)
+Client::Client() : fd(-1), isAuthenticated(false), hasProvidedPassword(false), hasNickname(false), hasUsername(false)
 {
 }
 
@@ -47,4 +47,28 @@ bool Client::getAuthenticationStatus() {
 
 void Client::setAuthenticationStatus(bool status) {
     isAuthenticated = status;
+}
+
+bool Client::getHasProvidedPassword() {
+    return hasProvidedPassword;
+}
+
+void Client::setHasProvidedPassword(bool status) {
+    hasProvidedPassword = status;
+}
+
+bool Client::getHasNickname() {
+    return hasNickname;
+}
+
+void Client::setHasNickname(bool status) {
+    hasNickname = status;
+}
+
+bool Client::getHasUsername() {
+    return hasUsername;
+}
+
+void Client::setHasUsername(bool status) {
+    hasUsername = status;
 }

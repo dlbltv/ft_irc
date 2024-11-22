@@ -157,16 +157,32 @@ void Server::parseCommand(Client* client, const std::string& line) {
 
     std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 
+    // Allow only authentication commands before authentication is complete
+    if (!client->getHasProvidedPassword() || !client->getHasNickname() || !client->getHasUsername()) {
+        if (command != "PASS" && command != "NICK" && command != "USER") {
+            sendError(client->GetFd(), "451", command + " :You must authenticate before using this command");
+            return;
+        }
+    }
+
     if (command == "PASS") {
         handlePassCommand(*this, client, params);
     } else if (command == "NICK") {
+        std::cout << "Debug: handleNickCommand invoked with nickname: " << params << std::endl;
         handleNickCommand(*this, client, params);
     } else if (command == "USER") {
         handleUserCommand(*this, client, params);
     } else if (command == "JOIN") {
         handleJoinCommand(*this, client, params);
     } else if (command == "PRIVMSG") {
-        handlePrivmsgCommand(*this, client, params.substr(0, params.find(' ')), params.substr(params.find(' ') + 1));
+        size_t splitPos = params.find(' ');
+        if (splitPos != std::string::npos) {
+            std::string target = params.substr(0, splitPos);
+            std::string message = params.substr(splitPos + 1);
+            handlePrivmsgCommand(*this, client, target, message);
+        } else {
+            sendError(client->GetFd(), "461", "PRIVMSG :Not enough parameters");
+        }
     } else if (command == "QUIT") {
         handleQuitCommand(*this, client, params);
     } else {
@@ -241,7 +257,6 @@ void Server::ClearClients(int fd) {
     close(fd);
 }
 
-
 void Server::SignalHandler(int signum)
 {
     (void)signum;
@@ -281,7 +296,6 @@ void Server::CloseFds() {
     }
 }
 
-
 const std::string& Server::getPassword() const {
     return password;
 }
@@ -309,4 +323,9 @@ Client* Server::getClientByNickname(const std::string& nickname) {
         }
     }
     return NULL; // Return NULL if no client with the nickname exists
+}
+
+void Server::sendNotice(int fd, const std::string& message) {
+    std::string noticeMsg = ":" + serverName + " NOTICE * " + message + "\r\n";
+    send(fd, noticeMsg.c_str(), noticeMsg.size(), 0);
 }

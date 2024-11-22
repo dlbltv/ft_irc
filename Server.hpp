@@ -63,7 +63,8 @@ public:
     bool isNicknameUnique(const std::string& nickname);                         
     void sendWelcomeMessage(Client* client); 
     void sendMessage(int fd, const std::string& message);                                   
-    Client* getClientByNickname(const std::string& nickname); 
+    Client* getClientByNickname(const std::string& nickname);
+    void sendNotice(int fd, const std::string& message);
 
     const std::string& getServerName() const {
         return serverName;
