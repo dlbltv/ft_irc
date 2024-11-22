@@ -173,7 +173,6 @@ void Server::parseCommand(Client* client, const std::string& line) {
     if (command == "PASS") {
         handlePassCommand(*this, client, params);
     } else if (command == "NICK") {
-        std::cout << "Debug: handleNickCommand invoked with nickname: " << params << std::endl;
         handleNickCommand(*this, client, params);
     } else if (command == "USER") {
         handleUserCommand(*this, client, params);
