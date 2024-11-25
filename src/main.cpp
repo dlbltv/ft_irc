@@ -6,31 +6,30 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:26 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/25 17:39:54 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/25 20:20:54 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
 #include <csignal>
 #include <cstdlib>  // For atoi()
 #include "../inc/Server.hpp"
 
-int main(int argc, char* argv[])
+int	main(int argc, char* argv[])
 {
 	if (argc != 3) {
 		std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
 		return 1;
 	}
 
-	int port = std::atoi(argv[1]);
+	int	port = std::atoi(argv[1]);
 	if (port <= 0) {
 		std::cerr << "Invalid port number." << std::endl;
 		return 1;
 	}
 
-	std::string password = argv[2];
+	std::string	password = argv[2];
 
-	Server ser(port, password);
+	Server	ser(port, password);
 	std::cout << "---- SERVER ----" << std::endl;
 	try {
 		signal(SIGINT, Server::SignalHandler);  // Catch SIGINT (Ctrl+C)
@@ -44,3 +43,6 @@ int main(int argc, char* argv[])
 	std::cout << "The Server Closed!" << std::endl;
 	return 0;
 }
+
+// Add sections to code
+// Comment functions meaning

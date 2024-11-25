@@ -1,14 +1,14 @@
-NAME = ircserv
+NAME = <name>
 
 CXX = c++
-CXXFLAGS = -Wall -Werror -Wextra -std=c++98
+CXXFLAGS = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address
 
 SRC_DIR = src
 INC_DIR = inc
 OBJ_DIR = .obj
 
-SRC_FILES = main.cpp Server.cpp Client.cpp Channel.cpp Commands.cpp
-INC_FILES = Server.hpp Client.hpp Channel.hpp Commands.hpp
+SRC_FILES = <source_files>
+INC_FILES = <header_files>
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 HDRS = $(addprefix $(INC_DIR)/, $(INC_FILES))
@@ -33,5 +33,8 @@ fclean: clean
 	@echo "Executable removed"
 
 re: fclean all
+
+val: all
+	@valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes ./$(NAME)
 
 .PHONY: all clean fclean re val
