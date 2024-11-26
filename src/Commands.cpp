@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/25 19:59:19 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/26 16:03:48 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,54 +14,54 @@
 
 void	handlePassCommand(Server& server, Client* client, const std::string& pass) {
 	if (pass.empty()) {
-		server.sendError(client->GetFd(), "461", "PASS :Not enough parameters");
+		server.sendError(client->getFd(), "461", "PASS :Not enough parameters");
 		return;
 	}
 	if (client->getAuthenticationStatus()) {
-		server.sendError(client->GetFd(), "462", "PASS :You may not reregister");
+		server.sendError(client->getFd(), "462", "PASS :You may not reregister");
 		return;
 	}
 	if (pass != server.getPassword()) { // Assume Server has a `getPassword()` function
-		server.sendError(client->GetFd(), "464", "PASS :Password incorrect");
-		server.ClearClients(client->GetFd());
-		close(client->GetFd());
+		server.sendError(client->getFd(), "464", "PASS :Password incorrect");
+		server.clearClients(client->getFd());
+		close(client->getFd());
 	} else {
 		client->setAuthenticationStatus(true);
 		 client->setHasProvidedPassword(true);
-		server.sendNotice(client->GetFd(), "Password accepted. Please set your NICK.");
+		server.sendNotice(client->getFd(), "Password accepted. Please set your NICK.");
 	}
 }
 
 void	handleNickCommand(Server& server, Client* client, const std::string& nickname) {
 	if (!client->getHasProvidedPassword()) {
-		server.sendError(client->GetFd(), "451", "NICK :You must provide PASS first");
+		server.sendError(client->getFd(), "451", "NICK :You must provide PASS first");
 		return;
 	}
 	if (nickname.empty()) {
-		server.sendError(client->GetFd(), "431", "NICK :No nickname given");
+		server.sendError(client->getFd(), "431", "NICK :No nickname given");
 		return;
 	}
 	if (!server.isNicknameUnique(nickname)) {
-		server.sendError(client->GetFd(), "433", nickname + " :Nickname is already in use");
+		server.sendError(client->getFd(), "433", nickname + " :Nickname is already in use");
 		return;
 	}
 
 	client->setNickname(nickname);
 	client->setHasNickname(true);
-	server.sendNotice(client->GetFd(), "Nickname set. Please provide your USER details.");
+	server.sendNotice(client->getFd(), "Nickname set. Please provide your USER details.");
 }
 
 void	handleUserCommand(Server& server, Client* client, const std::string& params) {
 	if (!client->getHasProvidedPassword()) {
-		server.sendError(client->GetFd(), "451", "USER :You must provide PASS first");
+		server.sendError(client->getFd(), "451", "USER :You must provide PASS first");
 		return;
 	}
 	if (!client->getHasNickname()) {
-		server.sendError(client->GetFd(), "451", "USER :You must set a NICK first");
+		server.sendError(client->getFd(), "451", "USER :You must set a NICK first");
 		return;
 	}
 	if (params.empty()) {
-		server.sendError(client->GetFd(), "461", "USER :Not enough parameters");
+		server.sendError(client->getFd(), "461", "USER :Not enough parameters");
 		return;
 	}
 
@@ -74,7 +74,7 @@ void	handleUserCommand(Server& server, Client* client, const std::string& params
 		realname.erase(0, 1);
 
 	if (username.empty()) {
-		server.sendError(client->GetFd(), "461", "USER :Not enough parameters");
+		server.sendError(client->getFd(), "461", "USER :Not enough parameters");
 		return;
 	}
 
@@ -87,7 +87,7 @@ void	handleUserCommand(Server& server, Client* client, const std::string& params
 
 void handleJoinCommand(Server& server, Client* client, const std::string& channelName) {
 	if (channelName.empty()) {
-		server.sendError(client->GetFd(), "461", "JOIN :Not enough parameters");
+		server.sendError(client->getFd(), "461", "JOIN :Not enough parameters");
 		return;
 	}
 
@@ -112,35 +112,35 @@ void handleJoinCommand(Server& server, Client* client, const std::string& channe
 	// Send NAMES list to the client
 	std::string namesReply = ":" + server.getServerName() + " 353 " + client->getNickname() +
 							 " = " + channelName + " :" + channel->getMemberList() + "\r\n";
-	server.sendMessage(client->GetFd(), namesReply);
+	server.sendMessage(client->getFd(), namesReply);
 
 	// End of NAMES list
 	std::string endNamesReply = ":" + server.getServerName() + " 366 " + client->getNickname() +
 								" " + channelName + " :End of /NAMES list\r\n";
-	server.sendMessage(client->GetFd(), endNamesReply);
+	server.sendMessage(client->getFd(), endNamesReply);
 }
 
 void	handlePrivmsgCommand(Server& server, Client* sender, const std::string& target, const std::string& message) {
 	if (target.empty() || message.empty()) {
-		server.sendError(sender->GetFd(), "411", "PRIVMSG :No recipient or text to send");
+		server.sendError(sender->getFd(), "411", "PRIVMSG :No recipient or text to send");
 		return;
 	}
 
 	if (target[0] == '#') {
 		Channel*	channel = server.getChannel(target); // Ensure `getChannel` is implemented correctly
 		if (!channel) {
-			server.sendError(sender->GetFd(), "403", target + " :No such channel");
+			server.sendError(sender->getFd(), "403", target + " :No such channel");
 			return;
 		}
 		channel->broadcast(":" + sender->getNickname() + " PRIVMSG " + target + " :" + message + "\r\n", sender);
 	} else {
 		Client*	recipient = server.getClientByNickname(target); // This should now link correctly
 		if (!recipient) {
-			server.sendError(sender->GetFd(), "401", target + " :No such nick");
+			server.sendError(sender->getFd(), "401", target + " :No such nick");
 			return;
 		}
 		std::string formattedMessage = ":" + sender->getNickname() + " PRIVMSG " + target + " :" + message + "\r\n";
-		send(recipient->GetFd(), formattedMessage.c_str(), formattedMessage.size(), 0);
+		send(recipient->getFd(), formattedMessage.c_str(), formattedMessage.size(), 0);
 	}
 }
 
@@ -151,7 +151,7 @@ void	handleQuitCommand(Server& server, Client* client, const std::string& messag
 	}
 
 	// Cache client info before removal
-	int			clientFd = client->GetFd();
+	int			clientFd = client->getFd();
 	std::string	clientNickname = client->getNickname();
 
 	// Construct the QUIT message
@@ -173,6 +173,6 @@ void	handleQuitCommand(Server& server, Client* client, const std::string& messag
 	send(clientFd, quitMsg.c_str(), quitMsg.size(), 0);
 
 	// Remove the client from the server
-	server.ClearClients(clientFd);
+	server.clearClients(clientFd);
 	close(clientFd);
 }

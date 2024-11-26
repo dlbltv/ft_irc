@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:26 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/25 20:20:54 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/26 16:04:08 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,12 +32,12 @@ int	main(int argc, char* argv[])
 	Server	ser(port, password);
 	std::cout << "---- SERVER ----" << std::endl;
 	try {
-		signal(SIGINT, Server::SignalHandler);  // Catch SIGINT (Ctrl+C)
-		signal(SIGQUIT, Server::SignalHandler); // Catch SIGQUIT (Ctrl+\)
-		ser.ServerInit(); // Initialize and run the server
+		signal(SIGINT, Server::signalHandler);  // Catch SIGINT (Ctrl+C)
+		signal(SIGQUIT, Server::signalHandler); // Catch SIGQUIT (Ctrl+\)
+		ser.serverInit(); // Initialize and run the server
 	}
 	catch (const std::exception& e) {
-		ser.CloseFds(); // Close file descriptors
+		ser.closeFds(); // Close file descriptors
 		std::cerr << e.what() << std::endl;
 	}
 	std::cout << "The Server Closed!" << std::endl;

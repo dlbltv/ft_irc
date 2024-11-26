@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:43:50 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/25 20:19:49 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/26 16:04:08 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@
 class Server {
 	private:
 		int								Port;			// Server port
-		int								SerSocketFd;	// Server socket file descriptor
+		int								serSocketFd;	// Server socket file descriptor
 		std::string						password;		// Server password
 		static bool						Signal;			// Static boolean for signal handling
 		std::vector<Client> 			clients;		// Vector of connected clients
@@ -43,9 +43,9 @@ class Server {
 		std::string						serverName;
 		std::map<std::string, Channel*>	Channels;
 
-		void						SerSocket();												// Server socket creation
-		void						AcceptNewClient();											// Accept new client connections
-		void						ReceiveNewData(int fd);										// Receive data from clients
+		void						serSocket();												// Server socket creation
+		void						acceptNewClient();											// Accept new client connections
+		void						receiveNewData(int fd);										// Receive data from clients
 		void						processMessage(int fd, const std::string& message);			// Process client messages
 		void						parseCommand(Client* client, const std::string& line);		// Parse and handle commands
 		std::vector<std::string>	split(const std::string& s, const std::string& delimiter);	// Split a string by delimiter
@@ -55,16 +55,16 @@ class Server {
 		Server(int port, const std::string& pass);
 		~Server();
 
-		void ServerInit();											// Server initialization
+		void serverInit();											// Server initialization
 
-		static void	SignalHandler(int signum);						// Signal handler
+		static void	signalHandler(int signum);						// Signal handler
 		void		deleteChannel(const std::string& channelName);	// Delete a channel
-		void		CloseFds();										// Close file descriptors
+		void		closeFds();										// Close file descriptors
 
 		// Public utilities
 		void addChannel(const std::string& name, Channel* channel);
 		void sendError(int fd, const std::string& code, const std::string& message);
-		void ClearClients(int fd);
+		void clearClients(int fd);
 		bool isNicknameUnique(const std::string& nickname);
 		void sendWelcomeMessage(Client* client);
 		void sendMessage(int fd, const std::string& message);

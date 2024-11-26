@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/25 20:00:16 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/26 16:00:44 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,12 @@ Channel::Channel(const std::string& name) : name(name) {}
 Channel::~Channel() {}
 
 void	Channel::addMember(Client* client) {
-	members[client->GetFd()] = client;
+	members[client->getFd()] = client;
 	std::cout << "Client <" << client->getNickname() << "> joined channel " << name << std::endl;
 }
 
 void	Channel::removeMember(Client* client) {
-	members.erase(client->GetFd());
+	members.erase(client->getFd());
 	std::cout << "Client <" << client->getNickname() << "> left channel " << name << std::endl;
 }
 
@@ -34,11 +34,11 @@ void	Channel::broadcast(const std::string& message, Client* sender) {
 }
 
 void	Channel::addOperator(Client* client) {
-	operators.insert(client->GetFd());
+	operators.insert(client->getFd());
 }
 
 bool	Channel::isOperator(Client* client) {
-	return operators.find(client->GetFd()) != operators.end();
+	return operators.find(client->getFd()) != operators.end();
 }
 
 bool	Channel::isMember(Client* client) const {

@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/25 21:49:16 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/26 16:04:08 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,17 +16,17 @@
 // Initialize static member
 bool	Server::Signal = false;
 
-Server::Server(int port, const std::string& pass) : Port(port), SerSocketFd(-1), password(pass), serverName("MyIRCd") {
+Server::Server(int port, const std::string& pass) : Port(port), serSocketFd(-1), password(pass), serverName("MyIRCd") {
 }
 
 Server::~Server() {
-	CloseFds();
+	closeFds();
 }
 
-void	Server::ServerInit() {
-	SerSocket(); // Create the server socket
+void	Server::serverInit() {
+	serSocket(); // Create the server socket
 
-	std::cout << GREEN_H << "Server <" << SerSocketFd << "> Connected on port " << Port << RESET << std::endl;
+	std::cout << GREEN_H << "Server <" << serSocketFd << "> Connected on port " << Port << RESET << std::endl;
 
 	while (!Server::Signal) {
 		int	poll_count = poll(&fds[0], fds.size(), -1);
@@ -36,17 +36,17 @@ void	Server::ServerInit() {
 
 		for (size_t i = 0; i < fds.size(); i++) {
 			if (fds[i].revents & POLLIN) {
-				if (fds[i].fd == SerSocketFd)
-					AcceptNewClient(); // Accept new client
+				if (fds[i].fd == serSocketFd)
+					acceptNewClient(); // Accept new client
 				else
-					ReceiveNewData(fds[i].fd); // Receive data from existing client
+					receiveNewData(fds[i].fd); // Receive data from existing client
 			}
 		}
 	}
-	CloseFds();
+	closeFds();
 }
 
-void	Server::SerSocket() {
+void	Server::serSocket() {
 	int					en = 1;
 	struct pollfd		NewPoll;
 	struct sockaddr_in	addr;
@@ -55,35 +55,35 @@ void	Server::SerSocket() {
 	addr.sin_addr.s_addr = INADDR_ANY;
 	addr.sin_port = htons(this->Port);
 
-	SerSocketFd = socket(AF_INET, SOCK_STREAM, 0);
-	if (SerSocketFd == -1)
+	serSocketFd = socket(AF_INET, SOCK_STREAM, 0);
+	if (serSocketFd == -1)
 		throw std::runtime_error("Failed to create socket");
 
-	if (setsockopt(SerSocketFd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
+	if (setsockopt(serSocketFd, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
 		throw std::runtime_error("Failed to set socket options");
 
-	if (fcntl(SerSocketFd, F_SETFL, O_NONBLOCK) == -1)
+	if (fcntl(serSocketFd, F_SETFL, O_NONBLOCK) == -1)
 		throw std::runtime_error("Failed to set socket to non-blocking");
 
-	if (bind(SerSocketFd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
+	if (bind(serSocketFd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
 		throw std::runtime_error("Failed to bind socket");
 
-	if (listen(SerSocketFd, SOMAXCONN) == -1)
+	if (listen(serSocketFd, SOMAXCONN) == -1)
 		throw std::runtime_error("listen() failed");
 
-	NewPoll.fd = SerSocketFd;
+	NewPoll.fd = serSocketFd;
 	NewPoll.events = POLLIN;
 	NewPoll.revents = 0;
 	fds.push_back(NewPoll);
 }
 
-void	Server::AcceptNewClient() {
+void	Server::acceptNewClient() {
 	Client				cli;
 	struct sockaddr_in	cliaddr;
 	socklen_t			len = sizeof(cliaddr);
 	memset(&cliaddr, 0, sizeof(cliaddr));
 
-	int clientfd = accept(SerSocketFd, (struct sockaddr *)&cliaddr, &len);
+	int clientfd = accept(serSocketFd, (struct sockaddr *)&cliaddr, &len);
 	if (clientfd == -1) {
 		std::cout << "accept() failed" << std::endl; return;
 	}
@@ -97,7 +97,7 @@ void	Server::AcceptNewClient() {
 	NewPoll.events = POLLIN;
 	NewPoll.revents = 0;
 
-	cli.SetFd(clientfd);
+	cli.setFd(clientfd);
 	cli.setIpAdd(inet_ntoa(cliaddr.sin_addr));
 	clients.push_back(cli);
 	fds.push_back(NewPoll);
@@ -105,7 +105,7 @@ void	Server::AcceptNewClient() {
 	std::cout << GREEN_H << "Client <" << clientfd << "> Connected" << RESET << std::endl;
 }
 
-void	Server::ReceiveNewData(int fd) {
+void	Server::receiveNewData(int fd) {
 	char	buffer[512]; // IRC messages are limited to 512 characters including CRLF
 	memset(buffer, 0, sizeof(buffer));
 
@@ -113,7 +113,7 @@ void	Server::ReceiveNewData(int fd) {
 
 	if (bytes <= 0) {
 		std::cout << RED << "Client <" << fd << "> Disconnected" << RESET << std::endl;
-		ClearClients(fd);
+		clearClients(fd);
 		close(fd);
 	} else {
 		buffer[bytes] = '\0';
@@ -166,7 +166,7 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 	// Allow only authentication commands before authentication is complete
 	if (!client->getHasProvidedPassword() || !client->getHasNickname() || !client->getHasUsername()) {
 		if (command != "PASS" && command != "NICK" && command != "USER") {
-			sendError(client->GetFd(), "451", command + " :You must authenticate before using this command");
+			sendError(client->getFd(), "451", command + " :You must authenticate before using this command");
 			return;
 		}
 	}
@@ -186,10 +186,10 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 			std::string message = params.substr(splitPos + 1);
 			handlePrivmsgCommand(*this, client, target, message);
 		} else {
-			sendError(client->GetFd(), "461", "PRIVMSG :Not enough parameters");
+			sendError(client->getFd(), "461", "PRIVMSG :Not enough parameters");
 		}
 	} else {
-		sendError(client->GetFd(), "421", command + " :Unknown command");
+		sendError(client->getFd(), "421", command + " :Unknown command");
 	}
 }
 
@@ -203,7 +203,7 @@ bool	Server::isNicknameUnique(const std::string& nickname) {
 
 void	Server::sendWelcomeMessage(Client* client) {
 	std::string	welcomeMsg = ":" + serverName + " 001 " + client->getNickname() + " :Welcome to the IRC server\r\n";
-	send(client->GetFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
+	send(client->getFd(), welcomeMsg.c_str(), welcomeMsg.size(), 0);
 }
 
 void	Server::sendMessage(int fd, const std::string& message) {
@@ -229,9 +229,9 @@ std::vector<std::string>	Server::split(const std::string& s, const std::string& 
 	return tokens;
 }
 
-void	Server::ClearClients(int fd) {
+void	Server::clearClients(int fd) {
 	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
-		if (it->GetFd() == fd) {
+		if (it->getFd() == fd) {
 			// Erase client from the vector; do not manually delete it
 			clients.erase(it);
 			break;
@@ -247,7 +247,7 @@ void	Server::ClearClients(int fd) {
 	close(fd);
 }
 
-void	Server::SignalHandler(int signum) {
+void	Server::signalHandler(int signum) {
 	(void)signum;
 	std::cout << std::endl << "Signal Received!" << std::endl;
 	Server::Signal = true;
@@ -259,16 +259,16 @@ void	Server::deleteChannel(const std::string& channelName) {
 	Channels.erase(channelName); // Remove the channel from the map
 }
 
-void	Server::CloseFds() {
+void	Server::closeFds() {
 	std::string	shutdownMsg = ":" + serverName + " NOTICE * :Server shutting down\r\n";
 
 	// Notify all clients about the shutdown and close their connections
 	for (size_t i = 0; i < clients.size(); ++i) {
-		send(clients[i].GetFd(), shutdownMsg.c_str(), shutdownMsg.size(), 0);
+		send(clients[i].getFd(), shutdownMsg.c_str(), shutdownMsg.size(), 0);
 
 		// Log and close the client's connection
-		std::cout << RED << "Client <" << clients[i].GetFd() << "> Disconnected" << RESET << std::endl;
-		close(clients[i].GetFd());
+		std::cout << RED << "Client <" << clients[i].getFd() << "> Disconnected" << RESET << std::endl;
+		close(clients[i].getFd());
 	}
 	clients.clear(); // Clear the vector of clients
 
@@ -279,9 +279,9 @@ void	Server::CloseFds() {
 	Channels.clear(); // Clear the map
 
 	// Close the server socket
-	if (SerSocketFd != -1) {
-		std::cout << RED << "Server <" << SerSocketFd << "> Disconnected" << RESET << std::endl;
-		close(SerSocketFd);
+	if (serSocketFd != -1) {
+		std::cout << RED << "Server <" << serSocketFd << "> Disconnected" << RESET << std::endl;
+		close(serSocketFd);
 	}
 }
 
@@ -297,7 +297,7 @@ void	Server::sendNotice(int fd, const std::string& message) {
 // -----------------------------------Getters-----------------------------------
 Client*	Server::getClientByFd(int fd) {
 	for (size_t i = 0; i < clients.size(); ++i) {
-		if (clients[i].GetFd() == fd)
+		if (clients[i].getFd() == fd)
 			return &clients[i];
 	}
 	return NULL;
