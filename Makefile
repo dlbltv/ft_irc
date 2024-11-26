@@ -1,18 +1,40 @@
+NAME = <name>
+
 CXX = c++
-CXXFLAGS = -std=c++98 -Wall -Wextra -Werror
-SRC = main.cpp Server.cpp Client.cpp Chanel.cpp Commands.cpp
-OBJ = $(SRC:.cpp=.o)
-NAME = ircserv
+CXXFLAGS = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address
+
+SRC_DIR = src
+INC_DIR = inc
+OBJ_DIR = .obj
+
+SRC_FILES = <source_files>
+INC_FILES = <header_files>
+
+SRCS = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
+HDRS = $(addprefix $(INC_DIR)/, $(INC_FILES))
+OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:%.cpp=%.o))
 
 all: $(NAME)
 
-$(NAME): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJ)
+$(NAME): $(OBJS) $(HDRS)
+	@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+	@echo "Compiled!"
+
+$(OBJ_DIR)/%.o: %.cpp $(HDRS)
+	@mkdir -p $(OBJ_DIR)/$(dir $<)
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJ)
+	@rm -rf $(OBJS) $(OBJ_DIR)
+	@echo "Object files removed"
 
 fclean: clean
-	rm -f $(NAME)
+	@rm -rf $(NAME)
+	@echo "Executable removed"
 
 re: fclean all
+
+val: all
+	@valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes ./$(NAME)
+
+.PHONY: all clean fclean re val
