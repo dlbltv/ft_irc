@@ -1,4 +1,4 @@
-NAME = <name>
+NAME = ft_irc
 
 CXX = c++
 CXXFLAGS = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address
@@ -7,8 +7,8 @@ SRC_DIR = src
 INC_DIR = inc
 OBJ_DIR = .obj
 
-SRC_FILES = <source_files>
-INC_FILES = <header_files>
+SRC_FILES = Channel.cpp Client.cpp Commands.cpp main.cpp Server.cpp
+INC_FILES = Channel.hpp Client.hpp colors.hpp Commands.hpp Server.hpp
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 HDRS = $(addprefix $(INC_DIR)/, $(INC_FILES))
