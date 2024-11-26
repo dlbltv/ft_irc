@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 18:04:58 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/26 18:49:35 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ Server::Server(int port, const std::string& pass) : port(port), serSocketFd(-1),
 }
 
 Server::~Server() {
-	closeFds();
+	// closeFds();
 }
 
 void	Server::serverInit() {
