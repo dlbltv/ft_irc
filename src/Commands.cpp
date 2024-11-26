@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 20:11:22 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/11/26 20:53:58 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,12 +166,14 @@ void	handleQuitCommand(Server& server, Client* client, const std::string& messag
 	for (std::map<std::string, Channel*>::iterator it = server.getChannels().begin();
 		 it != server.getChannels().end(); ++it) {
 		Channel* channel = it->second;
+		if (channel->isMember(client))
+		{
+			// Broadcast QUIT to all members except the quitting client
+			channel->broadcast(quitMsg, client);
 
-		// Broadcast QUIT to all members except the quitting client
-		channel->broadcast(quitMsg, client);
-
-		// Remove the quitting client from the channel
-		channel->removeMember(client);
+			// Remove the quitting client from the channel
+			channel->removeMember(client);
+		}
 	}
 
 	// Notify the client
