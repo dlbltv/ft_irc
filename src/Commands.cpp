@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 16:03:48 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/26 20:00:18 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,6 +130,11 @@ void	handlePrivmsgCommand(Server& server, Client* sender, const std::string& tar
 		Channel*	channel = server.getChannel(target); // Ensure `getChannel` is implemented correctly
 		if (!channel) {
 			server.sendError(sender->getFd(), "403", target + " :No such channel");
+			return;
+		}
+		// Check if the client is a member of the channel
+		if (!channel->isMember(sender)) {
+			server.sendError(sender->getFd(), "404", target + " :Cannot send to channel");
 			return;
 		}
 		channel->broadcast(":" + sender->getNickname() + " PRIVMSG " + target + " :" + message + "\r\n", sender);
