@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:00 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 15:55:46 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/26 16:14:24 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ class Channel {
 		void	removeMember(Client* client);
 		void	broadcast(const std::string& message, Client* sender = NULL);
 		void	addOperator(Client* client);
+
+		// Checkers
 		bool	isOperator(Client* client);
 		bool	isMember(Client* client) const;
 
