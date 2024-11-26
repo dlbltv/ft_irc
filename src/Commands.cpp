@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 20:00:18 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/11/26 20:11:22 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ void	handlePrivmsgCommand(Server& server, Client* sender, const std::string& tar
 		}
 		// Check if the client is a member of the channel
 		if (!channel->isMember(sender)) {
-			server.sendError(sender->getFd(), "404", target + " :Cannot send to channel");
+			server.sendError(sender->getFd(), "404", target + " :You are not a member of this channel");
 			return;
 		}
 		channel->broadcast(":" + sender->getNickname() + " PRIVMSG " + target + " :" + message + "\r\n", sender);
