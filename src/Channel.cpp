@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 16:00:44 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/26 16:15:16 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ void	Channel::addOperator(Client* client) {
 	operators.insert(client->getFd());
 }
 
+// -----------------------------------Checkers----------------------------------
 bool	Channel::isOperator(Client* client) {
 	return operators.find(client->getFd()) != operators.end();
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 16:04:08 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/26 18:49:35 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,24 @@
 #include "../inc/Commands.hpp"
 
 // Initialize static member
-bool	Server::Signal = false;
+bool	Server::_signal = false;
 
-Server::Server(int port, const std::string& pass) : Port(port), serSocketFd(-1), password(pass), serverName("MyIRCd") {
+Server::Server(int port, const std::string& pass) : port(port), serSocketFd(-1), password(pass), serverName("MyIRCd") {
 }
 
 Server::~Server() {
-	closeFds();
+	// closeFds();
 }
 
 void	Server::serverInit() {
 	serSocket(); // Create the server socket
 
-	std::cout << GREEN_H << "Server <" << serSocketFd << "> Connected on port " << Port << RESET << std::endl;
+	std::cout << GREEN_H << "Server <" << serSocketFd << "> Connected on port " << port << RESET << std::endl;
 
-	while (!Server::Signal) {
+	while (!Server::_signal) {
 		int	poll_count = poll(&fds[0], fds.size(), -1);
 
-		if (poll_count == -1 && !Server::Signal)
+		if (poll_count == -1 && !Server::_signal)
 			throw std::runtime_error("poll() failed");
 
 		for (size_t i = 0; i < fds.size(); i++) {
@@ -53,7 +53,7 @@ void	Server::serSocket() {
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_port = htons(this->Port);
+	addr.sin_port = htons(this->port);
 
 	serSocketFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (serSocketFd == -1)
@@ -250,13 +250,13 @@ void	Server::clearClients(int fd) {
 void	Server::signalHandler(int signum) {
 	(void)signum;
 	std::cout << std::endl << "Signal Received!" << std::endl;
-	Server::Signal = true;
+	Server::_signal = true;
 }
 
 void	Server::deleteChannel(const std::string& channelName) {
-	Channel*	channel = Channels[channelName];
+	Channel*	channel = channels[channelName];
 	delete channel; // Free the memory for the channel
-	Channels.erase(channelName); // Remove the channel from the map
+	channels.erase(channelName); // Remove the channel from the map
 }
 
 void	Server::closeFds() {
@@ -272,11 +272,11 @@ void	Server::closeFds() {
 	}
 	clients.clear(); // Clear the vector of clients
 
-	// Delete all channels and clear the Channels map
-	for (std::map<std::string, Channel*>::iterator it = Channels.begin(); it != Channels.end(); ++it) {
+	// Delete all channels and clear the channels map
+	for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
 		delete it->second; // Free the memory allocated for the Channel object
 	}
-	Channels.clear(); // Clear the map
+	channels.clear(); // Clear the map
 
 	// Close the server socket
 	if (serSocketFd != -1) {
@@ -286,7 +286,7 @@ void	Server::closeFds() {
 }
 
 void Server::addChannel(const std::string& name, Channel* channel) {
-	Channels[name] = channel; // Add the channel to the map
+	channels[name] = channel; // Add the channel to the map
 }
 
 void	Server::sendNotice(int fd, const std::string& message) {
@@ -308,14 +308,14 @@ const	std::string& Server::getPassword() const {
 }
 
 Channel*	Server::getChannel(const std::string& name) {
-	std::map<std::string, Channel*>::iterator	it = Channels.find(name);
-	if (it != Channels.end())
+	std::map<std::string, Channel*>::iterator	it = channels.find(name);
+	if (it != channels.end())
 		return it->second; // Return the existing channel
 	return NULL; // Return NULL if the channel doesn't exist
 }
 
 std::map<std::string, Channel*>& Server::getChannels() {
-	return Channels;
+	return channels;
 }
 
 Client*	Server::getClientByNickname(const std::string& nickname) {
@@ -323,5 +323,5 @@ Client*	Server::getClientByNickname(const std::string& nickname) {
 		if (it->getNickname() == nickname)
 			return &(*it); // Return a pointer to the matching client
 	}
-	return NULL; // Return NULL if no client with the nickname exists
+	return NULL; // Return NULL if no client with the _nickname exists
 }

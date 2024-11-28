@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:32:00 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 16:09:52 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/26 18:05:23 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,11 @@ void	Client::setIpAdd(const std::string& ipAdd) {
 }
 
 void	Client::setNickname(const std::string& nickname) {
-	Nickname = nickname;
+	_nickname = nickname;
 }
 
 void	Client::setUsername(const std::string& username) {
-	Username = username;
+	_username = username;
 }
 
 void	Client::setAuthenticationStatus(bool status) {
@@ -59,11 +59,11 @@ int	Client::getFd() {
 }
 
 std::string	Client::getNickname() {
-	return Nickname;
+	return _nickname;
 }
 
 std::string	Client::getUsername() {
-	return Username;
+	return _username;
 }
 
 bool	Client::getAuthenticationStatus() {
