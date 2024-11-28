@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/28 18:59:34 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/28 19:05:06 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,8 +204,3 @@ void	handleHelpCommand(Server& server, Client* client, const std::string& argume
 	helpMsg += "\t\e[34mQUIT\e[0m : Usage: QUIT [<reason>], disconnects from the server\r\n";
 	server.sendMessage(client->getFd(), helpMsg);
 }
-
-/* 
-PASS     NICK     USER     JOIN
-PRIVMSG  QUIT
- */
