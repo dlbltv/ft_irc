@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:29:30 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 16:05:17 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/26 18:05:13 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@ class Client {
 	private:
 		int			fd;	// File descriptor (use lowercase 'fd')
 		std::string	ipAdd;
-		std::string	Nickname;
-		std::string	Username;
+		std::string	_nickname;
+		std::string	_username;
 		bool		isAuthenticated;
 		bool		hasProvidedPassword;
 		bool		hasNickname;

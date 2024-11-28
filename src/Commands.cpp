@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 16:03:48 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/28 19:05:06 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,11 @@ void	handlePrivmsgCommand(Server& server, Client* sender, const std::string& tar
 			server.sendError(sender->getFd(), "403", target + " :No such channel");
 			return;
 		}
+		// Check if the client is a member of the channel
+		if (!channel->isMember(sender)) {
+			server.sendError(sender->getFd(), "404", target + " :You are not a member of this channel");
+			return;
+		}
 		channel->broadcast(":" + sender->getNickname() + " PRIVMSG " + target + " :" + message + "\r\n", sender);
 	} else {
 		Client*	recipient = server.getClientByNickname(target); // This should now link correctly
@@ -159,14 +164,16 @@ void	handleQuitCommand(Server& server, Client* client, const std::string& messag
 
 	// Notify all channels and remove the client
 	for (std::map<std::string, Channel*>::iterator it = server.getChannels().begin();
-		 it != server.getChannels().end(); ++it) {
+		it != server.getChannels().end(); ++it) {
 		Channel* channel = it->second;
+		if (channel->isMember(client))
+		{
+			// Broadcast QUIT to all members except the quitting client
+			channel->broadcast(quitMsg, client);
 
-		// Broadcast QUIT to all members except the quitting client
-		channel->broadcast(quitMsg, client);
-
-		// Remove the quitting client from the channel
-		channel->removeMember(client);
+			// Remove the quitting client from the channel
+			channel->removeMember(client);
+		}
 	}
 
 	// Notify the client
@@ -175,4 +182,25 @@ void	handleQuitCommand(Server& server, Client* client, const std::string& messag
 	// Remove the client from the server
 	server.clearClients(clientFd);
 	close(clientFd);
+}
+
+// Shows available commands
+// with '-l' option shows what commands do
+void	handleHelpCommand(Server& server, Client* client, const std::string& argument) {
+	std::string helpMsg = ":Commands Available:\r\n";
+	if (argument.empty()) {
+		helpMsg += "\tPASS     NICK     USER     JOIN\r\n\tPRIVMSG  QUIT\r\nFor more details type HELP -l\r\n";
+		server.sendMessage(client->getFd(), helpMsg);
+		return;
+	} else if (argument != "-l") {
+		server.sendError(client->getFd(), "401", argument + ": No such option");
+		return;
+	}
+	helpMsg += "\t\e[34mPASS\e[0m : Usage: PASS <password>, authenticates you on the server\r\n";
+	helpMsg += "\t\e[34mNICK\e[0m : Usage: NICK <nickname>, sets your nick\r\n";
+	helpMsg += "\t\e[34mUSER\e[0m : Usage: USER <user_info>, sets your user info\r\n";
+	helpMsg += "\t\e[34mJOIN\e[0m : Usage: JOIN <channel>, joins the channel\r\n";
+	helpMsg += "\t\e[34mPRIVMSG\e[0m : Usage: PRIVMSG <target> <message>, sends a message to the target (user/channel)\r\n";
+	helpMsg += "\t\e[34mQUIT\e[0m : Usage: QUIT [<reason>], disconnects from the server\r\n";
+	server.sendMessage(client->getFd(), helpMsg);
 }

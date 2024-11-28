@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:54 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/25 17:35:25 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/28 18:54:47 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,5 +22,6 @@ void	handleUserCommand(Server& server, Client* client, const std::string& params
 void	handleJoinCommand(Server& server, Client* client, const std::string& channelName);
 void	handlePrivmsgCommand(Server& server, Client* client, const std::string& target, const std::string& message);
 void	handleQuitCommand(Server& server, Client* client, const std::string& message);
+void	handleHelpCommand(Server& server, Client* client, const std::string& argument);
 
 #endif // COMMANDS_HPP

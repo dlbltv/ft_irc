@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:43:50 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 16:04:08 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/26 18:02:34 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,14 +34,14 @@
 
 class Server {
 	private:
-		int								Port;			// Server port
+		int								port;			// Server port
 		int								serSocketFd;	// Server socket file descriptor
 		std::string						password;		// Server password
-		static bool						Signal;			// Static boolean for signal handling
+		static bool						_signal;		// Static boolean for signal handling
 		std::vector<Client> 			clients;		// Vector of connected clients
 		std::vector<struct pollfd>		fds;			// Vector for poll()
 		std::string						serverName;
-		std::map<std::string, Channel*>	Channels;
+		std::map<std::string, Channel*>	channels;
 
 		void						serSocket();												// Server socket creation
 		void						acceptNewClient();											// Accept new client connections
@@ -55,20 +55,20 @@ class Server {
 		Server(int port, const std::string& pass);
 		~Server();
 
-		void serverInit();											// Server initialization
+		void		serverInit();									// Server initialization
 
 		static void	signalHandler(int signum);						// Signal handler
 		void		deleteChannel(const std::string& channelName);	// Delete a channel
 		void		closeFds();										// Close file descriptors
 
 		// Public utilities
-		void addChannel(const std::string& name, Channel* channel);
-		void sendError(int fd, const std::string& code, const std::string& message);
-		void clearClients(int fd);
-		bool isNicknameUnique(const std::string& nickname);
-		void sendWelcomeMessage(Client* client);
-		void sendMessage(int fd, const std::string& message);
-		void sendNotice(int fd, const std::string& message);
+		void	addChannel(const std::string& name, Channel* channel);
+		void	sendError(int fd, const std::string& code, const std::string& message);
+		void	clearClients(int fd);
+		bool	isNicknameUnique(const std::string& nickname);
+		void	sendWelcomeMessage(Client* client);
+		void	sendMessage(int fd, const std::string& message);
+		void	sendNotice(int fd, const std::string& message);
 
 		// Getters
 		const std::string&					getPassword() const;
