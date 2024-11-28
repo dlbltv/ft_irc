@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 16:15:16 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/28 19:54:04 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,10 @@ void	Channel::addMember(Client* client) {
 }
 
 void	Channel::removeMember(Client* client) {
-	members.erase(client->getFd());
 	std::cout << "Client <" << client->getNickname() << "> left channel " << name << std::endl;
+	if (members.size() == 1)
+		std::cout << "Channel " << name << " deleted" << std::endl;
+	members.erase(client->getFd());
 }
 
 void	Channel::broadcast(const std::string& message, Client* sender) {

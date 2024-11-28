@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 20:53:58 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/11/28 19:50:23 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,7 @@ void handleJoinCommand(Server& server, Client* client, const std::string& channe
 	if (!channel) {
 		channel = new Channel(channelName);
 		server.addChannel(channelName, channel);
+		std::cout << "Channel " << channelName << " created by client <" << client->getNickname() << ">" << std::endl;
 	}
 
 	// Check if the client is already a member of the channel
