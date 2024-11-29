@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/28 19:57:20 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/29 21:07:09 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,13 +90,18 @@ void handleJoinCommand(Server& server, Client* client, const std::string& channe
 		server.sendError(client->getFd(), "461", "JOIN :Not enough parameters");
 		return;
 	}
-
+	
 	// Fetch or create the channel
 	Channel*	channel = server.getChannel(channelName);
 	if (!channel) {
 		channel = new Channel(channelName);
 		server.addChannel(channelName, channel);
 		std::cout << "Channel " << channelName << " created by client <" << client->getNickname() << ">" << std::endl;
+	}
+
+	if (channel->isInviteOnly() && !channel->isInvited(client->getNickname())) {
+		server.sendError(client->getFd(), "473", channelName + " :You must be invited to join this channel");
+		return;
 	}
 
 	// Check if the client is already a member of the channel
@@ -204,4 +209,61 @@ void	handleHelpCommand(Server& server, Client* client, const std::string& argume
 	helpMsg += "\t\e[34mPRIVMSG\e[0m : Usage: PRIVMSG <target> <message>, sends a message to the target (user/channel)\r\n";
 	helpMsg += "\t\e[34mQUIT\e[0m : Usage: QUIT [<reason>], disconnects from the server\r\n";
 	server.sendMessage(client->getFd(), helpMsg);
+}
+
+std::string normalizeChannelName(const std::string& name) {
+	return (name[0] == '#') ? name : "#" + name;
+}
+
+void	handleInviteCommand(Server& server, Client* inviter, const std::string& params) {
+	// Split params into target nickname and channel name
+	std::istringstream iss(params);
+	std::string targetNickname, channelName;
+	iss >> targetNickname >> channelName;
+
+	// Normalize channel name
+	channelName = normalizeChannelName(channelName);
+
+	// Check if the target nickname and channel name are provided
+	if (targetNickname.empty() || channelName.empty()) {
+		server.sendError(inviter->getFd(), "461", "INVITE :Not enough parameters");
+		return;
+	}
+	// Check if the channel exists
+	Channel* channel = server.getChannel(channelName);
+	if (!channel) {
+		server.sendError(inviter->getFd(), "403", channelName + " :No such channel");
+		return;
+	}
+	// Check if the inviter is a member of the channel
+	if (!channel->isMember(inviter)) {
+		server.sendError(inviter->getFd(), "442", channelName + " :You're not on that channel");
+		return;
+	}
+	// Check if the inviter is an operator
+	// if (!channel->isOperator(inviter)) {
+	// 	server.sendError(inviter->getFd(), "482", channelName + " :You're not a channel operator");
+	// 	return;
+	// }
+	// Check if the target client exists
+	Client* targetClient = server.getClientByNickname(targetNickname);
+	if (!targetClient) {
+		server.sendError(inviter->getFd(), "401", targetNickname + " :No such nick");
+		return;
+	}
+	// Send an invite message to the target client
+	std::string inviteMsg = ":" + inviter->getNickname() + " INVITE " + targetNickname + " :" + channelName + "\r\n";
+	server.sendMessage(targetClient->getFd(), inviteMsg);
+
+	// Check if the target client is already a member of the channel
+	if (channel->isMember(targetClient)) {
+		server.sendNotice(inviter->getFd(), targetNickname + " is already a member of " + channelName);
+		return;
+	}
+
+	// Add the target nickname to the channel's invite list
+	channel->addInvite(targetClient->getNickname());
+
+	// Notify the inviter about the successful invitation
+	server.sendNotice(inviter->getFd(), "Invitation sent to " + targetNickname + " for channel " + channelName);
 }

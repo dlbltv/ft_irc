@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/28 18:54:23 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/29 20:34:23 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,6 +183,8 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 		handleUserCommand(*this, client, params);
 	} else if (command == "JOIN") {
 		handleJoinCommand(*this, client, params);
+	} else if (command == "INVITE") {
+		handleInviteCommand(*this, client, params);
 	} else if (command == "PRIVMSG") {
 		size_t splitPos = params.find(' ');
 		if (splitPos != std::string::npos) {

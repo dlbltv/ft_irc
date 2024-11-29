@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:54 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/28 18:54:47 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/11/29 20:32:07 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,5 +23,6 @@ void	handleJoinCommand(Server& server, Client* client, const std::string& channe
 void	handlePrivmsgCommand(Server& server, Client* client, const std::string& target, const std::string& message);
 void	handleQuitCommand(Server& server, Client* client, const std::string& message);
 void	handleHelpCommand(Server& server, Client* client, const std::string& argument);
+void	handleInviteCommand(Server& server, Client* inviter, const std::string& params);
 
 #endif // COMMANDS_HPP
