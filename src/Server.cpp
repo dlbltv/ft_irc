@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/02 19:27:22 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/02 19:32:01 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,20 +219,6 @@ void	Server::sendMessage(int fd, const std::string& message) {
 void	Server::sendError(int fd, const std::string& code, const std::string& message) {
 	std::string	errorMsg = ":" + serverName + " " + code + " * " + message + "\r\n";
 	send(fd, errorMsg.c_str(), errorMsg.size(), 0);
-}
-
-std::vector<std::string>	Server::split(const std::string& s, const std::string& delimiter) {
-	std::vector<std::string>	tokens;
-	size_t						start = 0;
-	size_t						end = s.find(delimiter);
-	while (end != std::string::npos) {
-		tokens.push_back(s.substr(start, end - start));
-		start = end + delimiter.length();
-		end = s.find(delimiter, start);
-	}
-	if (start < s.length())
-		tokens.push_back(s.substr(start));
-	return tokens;
 }
 
 void	Server::clearClients(int fd) {

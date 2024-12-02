@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/29 21:07:09 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/02 19:27:59 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,58 +211,46 @@ void	handleHelpCommand(Server& server, Client* client, const std::string& argume
 	server.sendMessage(client->getFd(), helpMsg);
 }
 
-std::string normalizeChannelName(const std::string& name) {
-	return (name[0] == '#') ? name : "#" + name;
-}
-
 void	handleInviteCommand(Server& server, Client* inviter, const std::string& params) {
 	// Split params into target nickname and channel name
 	std::istringstream iss(params);
 	std::string targetNickname, channelName;
 	iss >> targetNickname >> channelName;
 
-	// Normalize channel name
-	channelName = normalizeChannelName(channelName);
+	if (!channelName.empty() && channelName[0] != '#') {
+		channelName = "#" + channelName;
+	}
 
 	// Check if the target nickname and channel name are provided
 	if (targetNickname.empty() || channelName.empty()) {
 		server.sendError(inviter->getFd(), "461", "INVITE :Not enough parameters");
 		return;
 	}
-	// Check if the channel exists
-	Channel* channel = server.getChannel(channelName);
-	if (!channel) {
-		server.sendError(inviter->getFd(), "403", channelName + " :No such channel");
-		return;
-	}
-	// Check if the inviter is a member of the channel
-	if (!channel->isMember(inviter)) {
-		server.sendError(inviter->getFd(), "442", channelName + " :You're not on that channel");
-		return;
-	}
-	// Check if the inviter is an operator
-	// if (!channel->isOperator(inviter)) {
-	// 	server.sendError(inviter->getFd(), "482", channelName + " :You're not a channel operator");
-	// 	return;
-	// }
+
 	// Check if the target client exists
 	Client* targetClient = server.getClientByNickname(targetNickname);
 	if (!targetClient) {
 		server.sendError(inviter->getFd(), "401", targetNickname + " :No such nick");
 		return;
 	}
+	
+	Channel* channel = server.getChannel(channelName);
+	if (channel) {
+		if (!channel->isMember(inviter)) {
+			server.sendNotice(inviter->getFd(), inviter->getNickname() + ", you are not member of " + channelName);
+			return;
+		}
+		if (channel->isMember(targetClient)) {
+			server.sendNotice(inviter->getFd(), targetNickname + " is already a member of " + channelName);
+			return;
+		}
+		// Add the target nickname to the channel's invite list
+		channel->addInvite(targetClient->getNickname());
+	}
+
 	// Send an invite message to the target client
 	std::string inviteMsg = ":" + inviter->getNickname() + " INVITE " + targetNickname + " :" + channelName + "\r\n";
 	server.sendMessage(targetClient->getFd(), inviteMsg);
-
-	// Check if the target client is already a member of the channel
-	if (channel->isMember(targetClient)) {
-		server.sendNotice(inviter->getFd(), targetNickname + " is already a member of " + channelName);
-		return;
-	}
-
-	// Add the target nickname to the channel's invite list
-	channel->addInvite(targetClient->getNickname());
 
 	// Notify the inviter about the successful invitation
 	server.sendNotice(inviter->getFd(), "Invitation sent to " + targetNickname + " for channel " + channelName);
