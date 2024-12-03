@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/02 19:27:59 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/03 18:12:22 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,6 +184,8 @@ void	handleQuitCommand(Server& server, Client* client, const std::string& messag
 
 	// Notify the client
 	send(clientFd, quitMsg.c_str(), quitMsg.size(), 0);
+
+	std::cout << RED << "Client <" << clientFd << "> Disconnected" << RESET << std::endl;
 
 	// Remove the client from the server
 	server.clearClients(clientFd);

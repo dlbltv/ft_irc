@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/03 17:41:29 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/03 18:12:05 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,22 @@ void	Server::receiveNewData(int fd) {
 	ssize_t	bytes = recv(fd, buffer, sizeof(buffer) - 1 , 0);
 
 	if (bytes <= 0) {
+		std::string quitMsg = ":" + getClientByFd(fd)->getNickname() + ": Client disconnected\r\n";
+		for (std::map<std::string, Channel*>::iterator it = getChannels().begin();
+			it != getChannels().end(); ++it) {
+			Channel* channel = it->second;
+			if (channel->isMember(getClientByFd(fd)))
+			{
+				// Broadcast QUIT to all members except the quitting client
+				channel->broadcast(quitMsg, getClientByFd(fd));
+
+				// Remove the quitting client from the channel
+				channel->removeMember(getClientByFd(fd));
+			}
+		}
+
+		// Notify the client
+		send(fd, quitMsg.c_str(), quitMsg.size(), 0);
 		std::cout << RED << "Client <" << fd << "> Disconnected" << RESET << std::endl;
 		clearClients(fd);
 		close(fd);
