@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/28 18:54:23 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/03 18:12:05 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,22 @@ void	Server::receiveNewData(int fd) {
 	ssize_t	bytes = recv(fd, buffer, sizeof(buffer) - 1 , 0);
 
 	if (bytes <= 0) {
+		std::string quitMsg = ":" + getClientByFd(fd)->getNickname() + ": Client disconnected\r\n";
+		for (std::map<std::string, Channel*>::iterator it = getChannels().begin();
+			it != getChannels().end(); ++it) {
+			Channel* channel = it->second;
+			if (channel->isMember(getClientByFd(fd)))
+			{
+				// Broadcast QUIT to all members except the quitting client
+				channel->broadcast(quitMsg, getClientByFd(fd));
+
+				// Remove the quitting client from the channel
+				channel->removeMember(getClientByFd(fd));
+			}
+		}
+
+		// Notify the client
+		send(fd, quitMsg.c_str(), quitMsg.size(), 0);
 		std::cout << RED << "Client <" << fd << "> Disconnected" << RESET << std::endl;
 		clearClients(fd);
 		close(fd);
@@ -133,7 +149,7 @@ void	Server::processMessage(int fd, const std::string& message) {
 	client->buffer += message;
 
 	size_t	pos;
-	while ((pos = client->buffer.find("\r\n")) != std::string::npos) {
+	while ((pos = client->buffer.find("\n")) != std::string::npos) {
 		std::string line = client->buffer.substr(0, pos);
 		client->buffer.erase(0, pos + 2); // Remove processed line and CRLF
 		if (!line.empty())
@@ -183,6 +199,8 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 		handleUserCommand(*this, client, params);
 	} else if (command == "JOIN") {
 		handleJoinCommand(*this, client, params);
+	} else if (command == "INVITE") {
+		handleInviteCommand(*this, client, params);
 	} else if (command == "PRIVMSG") {
 		size_t splitPos = params.find(' ');
 		if (splitPos != std::string::npos) {
@@ -198,7 +216,7 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 }
 
 bool	Server::isNicknameUnique(const std::string& nickname) {
-	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+	for (std::deque<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
 		if (it->getNickname() == nickname)
 			return false;
 	}
@@ -219,22 +237,8 @@ void	Server::sendError(int fd, const std::string& code, const std::string& messa
 	send(fd, errorMsg.c_str(), errorMsg.size(), 0);
 }
 
-std::vector<std::string>	Server::split(const std::string& s, const std::string& delimiter) {
-	std::vector<std::string>	tokens;
-	size_t						start = 0;
-	size_t						end = s.find(delimiter);
-	while (end != std::string::npos) {
-		tokens.push_back(s.substr(start, end - start));
-		start = end + delimiter.length();
-		end = s.find(delimiter, start);
-	}
-	if (start < s.length())
-		tokens.push_back(s.substr(start));
-	return tokens;
-}
-
 void	Server::clearClients(int fd) {
-	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+	for (std::deque<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
 		if (it->getFd() == fd) {
 			// Erase client from the vector; do not manually delete it
 			clients.erase(it);
@@ -323,7 +327,7 @@ std::map<std::string, Channel*>& Server::getChannels() {
 }
 
 Client*	Server::getClientByNickname(const std::string& nickname) {
-	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+	for (std::deque<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
 		if (it->getNickname() == nickname)
 			return &(*it); // Return a pointer to the matching client
 	}
