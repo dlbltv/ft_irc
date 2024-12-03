@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:43:50 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/02 19:29:59 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/03 17:40:36 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # include <stdexcept>
 # include "Client.hpp"
 # include "Channel.hpp"
+# include <deque>
 
 class Server {
 	private:
@@ -38,7 +39,7 @@ class Server {
 		int								serSocketFd;	// Server socket file descriptor
 		std::string						password;		// Server password
 		static bool						_signal;		// Static boolean for signal handling
-		std::vector<Client> 			clients;		// Vector of connected clients
+		std::deque<Client> 			clients;			// Vector of connected clients
 		std::vector<struct pollfd>		fds;			// Vector for poll()
 		std::string						serverName;
 		std::map<std::string, Channel*>	channels;

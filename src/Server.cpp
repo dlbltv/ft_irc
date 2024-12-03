@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/02 19:32:01 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/03 17:41:29 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,7 +200,7 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 }
 
 bool	Server::isNicknameUnique(const std::string& nickname) {
-	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+	for (std::deque<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
 		if (it->getNickname() == nickname)
 			return false;
 	}
@@ -222,7 +222,7 @@ void	Server::sendError(int fd, const std::string& code, const std::string& messa
 }
 
 void	Server::clearClients(int fd) {
-	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+	for (std::deque<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
 		if (it->getFd() == fd) {
 			// Erase client from the vector; do not manually delete it
 			clients.erase(it);
@@ -311,7 +311,7 @@ std::map<std::string, Channel*>& Server::getChannels() {
 }
 
 Client*	Server::getClientByNickname(const std::string& nickname) {
-	for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+	for (std::deque<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
 		if (it->getNickname() == nickname)
 			return &(*it); // Return a pointer to the matching client
 	}
