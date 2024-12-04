@@ -6,7 +6,7 @@
 /*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/04 22:14:35 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/04 22:51:29 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,6 +145,10 @@ int	Channel::getUserLimit() const {
 
 size_t	Channel::getMemberCount() const {
 	return members.size();
+}
+
+const std::string&	Channel::getChannelKey() const {
+	return channelKey;
 }
 
 // -----------------------------------Setters-----------------------------------

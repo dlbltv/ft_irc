@@ -6,7 +6,7 @@
 /*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:00 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/04 22:14:17 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/04 22:51:01 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ class Channel {
 		std::string			getMemberList() const;
 		int					getUserLimit() const;
 		size_t				getMemberCount() const;
+		const std::string&	getChannelKey() const;
 		
 		// Setters
 		void	setInviteOnly(bool status);

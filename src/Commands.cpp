@@ -6,7 +6,7 @@
 /*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/04 22:15:56 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/04 22:52:08 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,12 @@ void handleJoinCommand(Server& server, Client* client, const std::string& channe
 	// Check user limit
 	if (channel->hasUserLimit() && channel->getMemberCount() >= static_cast<size_t>(channel->getUserLimit())) {
 		server.sendError(client->getFd(), "471", channelName + " :Cannot join channel (+l)");
+		return;
+	}
+
+	// Check if the channel has a key set (+k mode)
+	if (channel->hasChannelKey()) {
+		server.sendError(client->getFd(), "475", channelName + " :Cannot join channel (+k)");
 		return;
 	}
 
