@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/03 18:12:22 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/04 17:02:18 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,8 @@ void handleJoinCommand(Server& server, Client* client, const std::string& channe
 		return; // No need to rejoin
 
 	// Add the client to the channel
-	channel->addMember(client);
+	if (client && !channel->isMember(client))
+		channel->addMember(client);
 
 	// Broadcast the JOIN message to all channel members, including the client
 	std::string joinMessage = ":" + client->getNickname() + " JOIN :" + channelName + "\r\n";
@@ -256,4 +257,83 @@ void	handleInviteCommand(Server& server, Client* inviter, const std::string& par
 
 	// Notify the inviter about the successful invitation
 	server.sendNotice(inviter->getFd(), "Invitation sent to " + targetNickname + " for channel " + channelName);
+}
+
+void	handleModeCommand(Server& server, Client* client, const std::string& params) {
+	std::istringstream iss(params);
+	std::string channelName, modeString, modeParam;
+	iss >> channelName >> modeString >> modeParam;
+
+	Channel* channel = server.getChannel(channelName);
+
+	if (!channel) {
+		server.sendError(client->getFd(), "403", channelName + " :No such channel");
+		return;
+	}
+
+	if (modeString.empty()) {
+		server.sendError(client->getFd(), "461", "MODE :Not enough parameters");
+		return;
+	}
+
+	if (!channel->isOperator(client))
+	{
+		server.sendError(client->getFd(), "482", channelName + " :You're not a channel operator");
+		return;
+	}
+
+	bool adding = true; // '+' for adding modes, '-' for removing modes
+	for (size_t i = 0; i < modeString.size(); i++) {
+		char mode = modeString[i];
+		if (mode == '+')
+			adding = true;
+		else if (mode == '-')
+			adding = false;
+		else if (mode == 'i')
+			channel->setInviteOnly(adding);
+		else if (mode == 't')
+			channel->setTopicRestricted(adding);
+		else if (mode == 'k') {
+			if (adding) {
+				if (modeParam.empty()) {
+					server.sendError(client->getFd(), "461", "MODE :Not enough parameters");
+					return;
+				}
+				channel->setChannelKey(modeParam);
+			} else {
+				channel->removeChannelKey();
+			}
+		} else if (mode == 'o') {
+			Client* targetClient = server.getClientByNickname(modeParam);
+			if (!targetClient) {
+				server.sendError(client->getFd(), "401", modeParam + " :No such nick");
+				return;
+			}
+			if (adding) {
+				channel->addOperator(targetClient);
+			} else {
+				channel->removeOperator(targetClient);
+			}
+		} else if (mode == 'l') {
+			if (adding) {
+				std::stringstream ss(modeParam);
+				int userLimit;
+				if (!(ss >> userLimit) || userLimit <= 0) {
+					server.sendError(client->getFd(), "461", "MODE l:Invalid user limit");
+					return;
+				}
+				channel->setUserLimit(userLimit);
+			} else {
+				channel->removeUserLimit();
+			}
+		} else {
+			server.sendError(client->getFd(), "472", std::string(1, mode) + " :Unknown mode flag");
+			return;
+		}
+	}
+	// Notify the channel about the mode change
+	std::string modeMessage = ":" + client->getNickname() + " MODE " + channelName + " " + modeString + " " + modeParam + "\r\n";
+	channel->broadcast(modeMessage, client);
+	std::cout << "server.sendMessage " << std::endl;
+	server.sendMessage(client->getFd(), modeMessage);
 }

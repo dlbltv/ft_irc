@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/03 18:12:05 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/04 15:42:09 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,7 +201,10 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 		handleJoinCommand(*this, client, params);
 	} else if (command == "INVITE") {
 		handleInviteCommand(*this, client, params);
-	} else if (command == "PRIVMSG") {
+	} else if (command == "MODE") {
+		handleModeCommand(*this, client, params);
+	}
+	else if (command == "PRIVMSG") {
 		size_t splitPos = params.find(' ');
 		if (splitPos != std::string::npos) {
 			std::string target = params.substr(0, splitPos);

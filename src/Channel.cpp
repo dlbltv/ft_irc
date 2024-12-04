@@ -6,17 +6,34 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/29 21:19:00 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/04 18:40:53 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Channel.hpp"
 
-Channel::Channel(const std::string& name) : name(name), inviteOnly(false) {}
+Channel::Channel(const std::string& name) : name(name), inviteOnly(false), userLimit(-1), inviteList() {}
 
 Channel::~Channel() {}
 
 void	Channel::addMember(Client* client) {
+	if (inviteOnly) {
+		if (!isInvited(client->getNickname())) {
+			send(client->getFd(), ":MyIRCd 473 * :Cannot join channel (+i)\r\n", 44, 0);
+			return;
+		}
+	}
+	if (hasUserLimit()) {
+		if (members.size() >= (size_t)userLimit) {
+			send(client->getFd(), ":MyIRCd 471 * :Cannot join channel (+l)\r\n", 44, 0);
+			return;
+		}
+	}
+	
+	// If this is the first member, make them the operator
+	if (members.empty())
+		addOperator(client);
+	
 	members[client->getFd()] = client;
 	std::cout << "Client <" << client->getNickname() << "> joined channel " << name << std::endl;
 }
@@ -47,19 +64,33 @@ void	Channel::removeInvite(const std::string& nickname) {
 	inviteList.erase(nickname);
 }
 
+void	Channel::removeChannelKey() {
+	channelKey.clear();
+}
+
+void	Channel::removeUserLimit() {
+	userLimit = 0;
+}
+
+void	Channel::removeOperator(Client* client) {
+	operators.erase(client->getFd());
+}
+
+std::string Channel::getModes() const {
+	std::string modes = "+";
+	if (inviteOnly) modes += "i";
+	if (topicRestricted) modes += "t";
+	if (!channelKey.empty()) modes += "k";
+	if (userLimit > 0) modes += "l";
+	return modes;
+}
+
 // -----------------------------------Checkers----------------------------------
 bool	Channel::isOperator(Client* client) {
 	return operators.find(client->getFd()) != operators.end();
 }
 
 bool	Channel::isMember(Client* client) const {
-	// Iterate through the members map and check if the client exists
-	// for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it) {
-	// 	if (it->second == client)
-	// 		return true;
-	// }
-	// return false;
-
 	return members.find(client->getFd()) != members.end();
 }
 
@@ -69,6 +100,22 @@ bool	Channel::isInvited(const std::string& nickname) const {
 
 bool	Channel::isInviteOnly() const {
 	return inviteOnly;
+}
+
+bool	Channel::isTopicRestricted() const {
+	return topicRestricted;
+}
+
+bool	Channel::hasChannelKey() const {
+	return !channelKey.empty();
+}
+
+bool 	Channel::hasUserLimit() const {
+	return userLimit > 0;
+}
+
+bool	Channel::isOperator(Client* client) const {
+	return operators.find(client->getFd()) != operators.end();
 }
 
 // -----------------------------------Getters-----------------------------------
@@ -89,8 +136,24 @@ std::string	Channel::getMemberList() const {
 	return memberList;
 }
 
+int	Channel::getUserLimit() const {
+	return userLimit;
+}
+
 // -----------------------------------Setters-----------------------------------
 
 void	Channel::setInviteOnly(bool status) {
 	inviteOnly = status;
+}
+
+void	Channel::setTopicRestricted(bool status) {
+	topicRestricted = status;
+}
+
+void	Channel::setChannelKey(const std::string& key) {
+	channelKey = key;
+}
+
+void	Channel::setUserLimit(int limit) {
+	userLimit = limit;
 }
