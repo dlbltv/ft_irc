@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:00 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/04 18:37:29 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/04 22:14:17 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ class Channel {
 		const std::string&	getName() const;
 		std::string			getMemberList() const;
 		int					getUserLimit() const;
+		size_t				getMemberCount() const;
 		
 		// Setters
 		void	setInviteOnly(bool status);

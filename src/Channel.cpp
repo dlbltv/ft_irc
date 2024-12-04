@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/04 18:40:53 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/04 22:14:35 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,9 @@ void	Channel::addMember(Client* client) {
 	
 	members[client->getFd()] = client;
 	std::cout << "Client <" << client->getNickname() << "> joined channel " << name << std::endl;
+
+	// Remove invite if the client was invited
+    removeInvite(client->getNickname());
 }
 
 void	Channel::removeMember(Client* client) {
@@ -138,6 +141,10 @@ std::string	Channel::getMemberList() const {
 
 int	Channel::getUserLimit() const {
 	return userLimit;
+}
+
+size_t	Channel::getMemberCount() const {
+	return members.size();
 }
 
 // -----------------------------------Setters-----------------------------------

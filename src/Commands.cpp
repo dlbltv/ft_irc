@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/04 17:02:18 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/04 22:15:56 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,13 +104,17 @@ void handleJoinCommand(Server& server, Client* client, const std::string& channe
 		return;
 	}
 
+	// Check user limit
+	if (channel->hasUserLimit() && channel->getMemberCount() >= static_cast<size_t>(channel->getUserLimit())) {
+		server.sendError(client->getFd(), "471", channelName + " :Cannot join channel (+l)");
+		return;
+	}
+
 	// Check if the client is already a member of the channel
 	if (channel->isMember(client))
 		return; // No need to rejoin
 
-	// Add the client to the channel
-	if (client && !channel->isMember(client))
-		channel->addMember(client);
+	channel->addMember(client);
 
 	// Broadcast the JOIN message to all channel members, including the client
 	std::string joinMessage = ":" + client->getNickname() + " JOIN :" + channelName + "\r\n";
