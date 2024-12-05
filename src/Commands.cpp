@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/05 17:03:59 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/05 17:07:50 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,7 @@ void handleJoinCommand(Server& server, Client* client, const std::string& channe
 	if (!channel) {
 		channel = new Channel(channelName);
 		server.addChannel(channelName, channel);
+		channel->addOperator(client);
 		std::cout << "Channel " << channelName << " created by client <" << client->getNickname() << ">" << std::endl;
 	}
 
