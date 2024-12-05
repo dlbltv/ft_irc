@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:29:30 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 18:05:13 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/05 18:28:01 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class Client {
 
 		// Getters
 		int			getFd();
-		std::string	getIpAdd();
+		// std::string	getIpAdd();
 		std::string	getNickname();
 		std::string	getUsername();
 		bool		getAuthenticationStatus();

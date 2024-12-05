@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/04 22:51:29 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/05 18:30:42 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,19 +17,6 @@ Channel::Channel(const std::string& name) : name(name), inviteOnly(false), userL
 Channel::~Channel() {}
 
 void	Channel::addMember(Client* client) {
-	if (inviteOnly) {
-		if (!isInvited(client->getNickname())) {
-			send(client->getFd(), ":MyIRCd 473 * :Cannot join channel (+i)\r\n", 44, 0);
-			return;
-		}
-	}
-	if (hasUserLimit()) {
-		if (members.size() >= (size_t)userLimit) {
-			send(client->getFd(), ":MyIRCd 471 * :Cannot join channel (+l)\r\n", 44, 0);
-			return;
-		}
-	}
-	
 	// If this is the first member, make them the operator
 	if (members.empty())
 		addOperator(client);
