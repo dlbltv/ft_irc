@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:00 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/29 20:43:35 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/05 17:43:14 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 class Channel {
 	private:
 		std::string				name;
+		std::string				topic;
 		std::map<int, Client*>	members;	// Key: client FD, Value: Client pointer
 		std::set<int>			operators;	// Operator FDs
 		std::set<std::string>	inviteList;
@@ -49,9 +50,11 @@ class Channel {
 
 		// Getters
 		const std::string&	getName() const;
+		const std::string&	getTopic() const;
 		std::string			getMemberList() const;
 		
 		// Setters
+		void	setTopic(std::string newTopic);
 		void	setInviteOnly(bool status);
 };
 

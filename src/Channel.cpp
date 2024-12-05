@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/29 21:19:00 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/05 17:42:42 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,10 @@ bool	Channel::isInviteOnly() const {
 // -----------------------------------Getters-----------------------------------
 const std::string&	Channel::getName() const {
 	return name;
+}
+
+const std::string&	Channel::getTopic() const {
+	return topic;
 }
 
 std::string	Channel::getMemberList() const {
