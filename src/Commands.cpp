@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/04 22:52:08 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/05 19:10:26 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,11 @@ void	handleUserCommand(Server& server, Client* client, const std::string& params
 		server.sendWelcomeMessage(client);
 }
 
-void handleJoinCommand(Server& server, Client* client, const std::string& channelName) {
+void handleJoinCommand(Server& server, Client* client, const std::string& params) {
+	std::istringstream iss(params);
+	std::string channelName, channelKey;
+	iss >> channelName >> channelKey;
+	
 	if (channelName.empty()) {
 		server.sendError(client->getFd(), "461", "JOIN :Not enough parameters");
 		return;
@@ -112,8 +116,10 @@ void handleJoinCommand(Server& server, Client* client, const std::string& channe
 
 	// Check if the channel has a key set (+k mode)
 	if (channel->hasChannelKey()) {
-		server.sendError(client->getFd(), "475", channelName + " :Cannot join channel (+k)");
-		return;
+		if (channelKey.empty() || channelKey != channel->getChannelKey()) {
+			server.sendError(client->getFd(), "475", channelName + " :Cannot join channel (+k)");
+			return;
+		}
 	}
 
 	// Check if the client is already a member of the channel
@@ -344,6 +350,4 @@ void	handleModeCommand(Server& server, Client* client, const std::string& params
 	// Notify the channel about the mode change
 	std::string modeMessage = ":" + client->getNickname() + " MODE " + channelName + " " + modeString + " " + modeParam + "\r\n";
 	channel->broadcast(modeMessage, client);
-	std::cout << "server.sendMessage " << std::endl;
-	server.sendMessage(client->getFd(), modeMessage);
 }
