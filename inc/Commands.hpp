@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:54 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/29 20:32:07 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/05 18:27:50 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "Server.hpp"
 # include <sstream>
+# include <cstdlib>
 
 void	handlePassCommand(Server& server, Client* client, const std::string& password);
 void	handleNickCommand(Server& server, Client* client, const std::string& nickname);
@@ -24,5 +25,6 @@ void	handlePrivmsgCommand(Server& server, Client* client, const std::string& tar
 void	handleQuitCommand(Server& server, Client* client, const std::string& message);
 void	handleHelpCommand(Server& server, Client* client, const std::string& argument);
 void	handleInviteCommand(Server& server, Client* inviter, const std::string& params);
+void	handleListCommand(Server& server, Client* client, const std::string& channelName);
 
 #endif // COMMANDS_HPP
