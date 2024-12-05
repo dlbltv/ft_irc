@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/05 19:10:26 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/05 19:29:00 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -336,6 +336,11 @@ void	handleModeCommand(Server& server, Client* client, const std::string& params
 				int userLimit;
 				if (!(ss >> userLimit) || userLimit <= 0) {
 					server.sendError(client->getFd(), "461", "MODE l:Invalid user limit");
+					return;
+				}
+				// Check against the current number of members
+				if (userLimit < static_cast<int>(channel->getMemberCount())) {
+					server.sendError(client->getFd(), "471", channelName + " :Cannot set channel user limit higher than the current number of members");
 					return;
 				}
 				channel->setUserLimit(userLimit);
