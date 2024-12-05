@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/03 19:22:51 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/05 17:07:50 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,7 @@ void handleJoinCommand(Server& server, Client* client, const std::string& channe
 	if (!channel) {
 		channel = new Channel(channelName);
 		server.addChannel(channelName, channel);
+		channel->addOperator(client);
 		std::cout << "Channel " << channelName << " created by client <" << client->getNickname() << ">" << std::endl;
 	}
 
@@ -179,6 +180,8 @@ void	handleQuitCommand(Server& server, Client* client, const std::string& messag
 
 			// Remove the quitting client from the channel
 			channel->removeMember(client);
+			if (channel->isOperator(client))
+				channel->removeOperator(client);
 		}
 	}
 

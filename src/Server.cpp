@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/03 18:12:05 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/05 17:04:49 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,8 @@ void	Server::receiveNewData(int fd) {
 
 				// Remove the quitting client from the channel
 				channel->removeMember(getClientByFd(fd));
+				if (channel->isOperator(getClientByFd(fd)))
+					channel->removeOperator(getClientByFd(fd));
 			}
 		}
 
