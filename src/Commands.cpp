@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/05 19:29:00 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/05 19:47:35 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -256,7 +256,11 @@ void	handleInviteCommand(Server& server, Client* inviter, const std::string& par
 	Channel* channel = server.getChannel(channelName);
 	if (channel) {
 		if (!channel->isMember(inviter)) {
-			server.sendNotice(inviter->getFd(), inviter->getNickname() + ", you are not member of " + channelName);
+			server.sendError(inviter->getFd(), "442", channelName + " :You're not member of that channel");
+			return;
+		}
+		if (!channel->isOperator(inviter)) {
+			server.sendError(inviter->getFd(), "482", channelName + " :You're not a channel operator of that channel");
 			return;
 		}
 		if (channel->isMember(targetClient)) {
