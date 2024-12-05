@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/03 18:12:05 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/05 19:07:35 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,6 +197,8 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 		handleNickCommand(*this, client, params);
 	} else if (command == "USER") {
 		handleUserCommand(*this, client, params);
+	} else if (command == "LIST") {
+		handleListCommand(*this, client, params);
 	} else if (command == "JOIN") {
 		handleJoinCommand(*this, client, params);
 	} else if (command == "INVITE") {
