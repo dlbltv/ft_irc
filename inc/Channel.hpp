@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:00 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/29 20:43:35 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/05 16:59:12 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class Channel {
 		void	removeMember(Client* client);
 		void	broadcast(const std::string& message, Client* sender = NULL);
 		void	addOperator(Client* client);
+		void	removeOperator(Client* client);
 		void 	addInvite(const std::string& nickname);
 		void 	removeInvite(const std::string& nickname);
 

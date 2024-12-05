@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/29 21:19:00 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/05 17:02:47 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,11 @@ void	Channel::broadcast(const std::string& message, Client* sender) {
 
 void	Channel::addOperator(Client* client) {
 	operators.insert(client->getFd());
+}
+
+void	Channel::removeOperator(Client* client) {
+	std::cout << "Client <" << client->getNickname() << "> is no longer operator of " << name << std::endl;
+	operators.erase(client->getFd());
 }
 
 void	Channel::addInvite(const std::string& nickname) {
