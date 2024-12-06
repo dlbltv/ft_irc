@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/03 18:12:05 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/06 17:32:00 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,6 +154,11 @@ void	Server::processMessage(int fd, const std::string& message) {
 		client->buffer.erase(0, pos + 2); // Remove processed line and CRLF
 		if (!line.empty())
 			parseCommand(client, line);
+		// After parseCommand, check if client still exists:
+		if (getClientByFd(fd) == NULL) {
+			// The client was removed (QUIT command handled), so stop processing
+			return;
+		}
 	}
 }
 
