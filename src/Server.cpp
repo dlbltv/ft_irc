@@ -154,13 +154,11 @@ void	Server::processMessage(int fd, const std::string& message) {
 		client->buffer.erase(0, pos + 2); // Remove processed line and CRLF
 		if (!line.empty()){
 			parseCommand(client, line);
-			
+
 			client = getClientByFd(fd);
+      // V--- Client was removed (QUIT or disconnected)
 			if (!client)
-			{
-				// Client was removed (QUIT or disconnected)
 				break;
-			}
 		}
 	}
 }

@@ -214,7 +214,7 @@ void	handleQuitCommand(Server& server, Client* client, const std::string& messag
 void	handleHelpCommand(Server& server, Client* client, const std::string& argument) {
 	std::string helpMsg = ":Commands Available:\r\n";
 	if (argument.empty()) {
-		helpMsg += "\tPASS     NICK     USER     JOIN\r\n\tPRIVMSG  QUIT\r\nFor more details type HELP -l\r\n";
+		helpMsg += "\tPASS     NICK     USER     JOIN\r\n\tPRIVMSG  INVITE  QUIT\r\n:For more details type HELP -l\r\n";
 		server.sendMessage(client->getFd(), helpMsg);
 		return;
 	} else if (argument != "-l") {
@@ -226,6 +226,7 @@ void	handleHelpCommand(Server& server, Client* client, const std::string& argume
 	helpMsg += "\t\e[34mUSER\e[0m : Usage: USER <user_info>, sets your user info\r\n";
 	helpMsg += "\t\e[34mJOIN\e[0m : Usage: JOIN <channel>, joins the channel\r\n";
 	helpMsg += "\t\e[34mPRIVMSG\e[0m : Usage: PRIVMSG <target> <message>, sends a message to the target (user/channel)\r\n";
+	helpMsg += "\t\e[34mINVITE\e[0m : Usage: INVITE <nick> <channel>, invites someone to a channel\r\n";
 	helpMsg += "\t\e[34mQUIT\e[0m : Usage: QUIT [<reason>], disconnects from the server\r\n";
 	server.sendMessage(client->getFd(), helpMsg);
 }
