@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:43:50 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/03 17:40:36 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/09 18:41:14 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@
 # include <stdexcept>
 # include "Client.hpp"
 # include "Channel.hpp"
-# include <deque>
+# include <list>
 
 class Server {
 	private:
@@ -39,7 +39,7 @@ class Server {
 		int								serSocketFd;	// Server socket file descriptor
 		std::string						password;		// Server password
 		static bool						_signal;		// Static boolean for signal handling
-		std::deque<Client> 			clients;			// Vector of connected clients
+		std::list<Client> 				clients;		// List of connected clients
 		std::vector<struct pollfd>		fds;			// Vector for poll()
 		std::string						serverName;
 		std::map<std::string, Channel*>	channels;
@@ -49,7 +49,7 @@ class Server {
 		void						receiveNewData(int fd);										// Receive data from clients
 		void						processMessage(int fd, const std::string& message);			// Process client messages
 		void						parseCommand(Client* client, const std::string& line);		// Parse and handle commands
-		std::vector<std::string>	split(const std::string& s, const std::string& delimiter);	// Split a string by delimiter
+		// std::vector<std::string>	split(const std::string& s, const std::string& delimiter);	// Split a string by delimiter
 		Client*						getClientByFd(int fd);										// Get a client by file descriptor
 
 	public:
