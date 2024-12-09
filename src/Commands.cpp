@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/05 19:47:35 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/09 15:37:12 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -327,6 +327,10 @@ void	handleModeCommand(Server& server, Client* client, const std::string& params
 			Client* targetClient = server.getClientByNickname(modeParam);
 			if (!targetClient) {
 				server.sendError(client->getFd(), "401", modeParam + " :No such nick");
+				return;
+			}
+			if (!channel->isMember(targetClient)) {
+				server.sendError(client->getFd(), "441", modeParam + " :Client is not a member of the channel");
 				return;
 			}
 			if (adding) {
