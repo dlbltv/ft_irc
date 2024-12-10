@@ -6,7 +6,7 @@
 /*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/10 19:18:58 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/10 22:44:02 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -402,3 +402,58 @@ void	handleModeCommand(Server& server, Client* client, const std::string& params
 	std::string modeMessage = ":" + client->getNickname() + " MODE " + channelName + " " + modeString + " " + modeParam + "\r\n";
 	channel->broadcast(modeMessage, client);
 }
+
+void handleKickCommand(Server& server, Client* kicker, const std::string& params) {
+	std::istringstream iss(params);
+	std::string channelName, targetNickname, reason;
+	iss >> channelName >> targetNickname;
+	
+	std::getline(iss, reason);
+	reason = reason.empty() ? "No reason specified" : reason.substr(1); // Remove leading space
+
+	if (channelName.empty() || targetNickname.empty()) {
+		server.sendError(kicker->getFd(), "461", "KICK :Not enough parameters");
+		return;
+	}
+
+	Channel* channel = server.getChannel(channelName);
+	if (!channel) {
+		server.sendError(kicker->getFd(), "403", channelName + " :No such channel");
+		return;
+	}
+
+	if (!channel->isMember(kicker)) {
+		server.sendError(kicker->getFd(), "442", channelName + " :You're not on that channel");
+		return;
+	}
+
+	if (!channel->isOperator(kicker)) {
+		server.sendError(kicker->getFd(), "482", channelName + " :You're not a channel operator");
+		return;
+	}
+
+	Client* targetClient = server.getClientByNickname(targetNickname);
+	if (!channel->isMember(targetClient)) {
+		server.sendError(kicker->getFd(), "441", targetNickname + " " + channelName + " :Hi isn't on that channel");
+		return;
+	}
+
+	if (!targetClient) {
+		server.sendError(kicker->getFd(), "401", targetNickname + " :No such nick");
+		return;
+	}
+
+	if (targetClient == kicker) {
+		server.sendError(kicker->getFd(), "485", " :You can't kick yourself");
+		return;
+	}
+
+	// Remove the client from the channel
+	channel->removeMember(targetClient);
+	// Notify all channel members about the kick
+	std::string kickMessage = ":" + kicker->getNickname() + " KICK " + channelName + " " + targetNickname + " :" + reason + "\r\n";
+	channel->broadcast(kickMessage);
+	// Notify the target client
+	server.sendMessage(targetClient->getFd(), kickMessage);
+}
+

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/09 18:48:58 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/10 22:23:55 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,6 +209,8 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 		handleJoinCommand(*this, client, params);
 	} else if (command == "INVITE") {
 		handleInviteCommand(*this, client, params);
+	} else if (command == "KICK") {
+		handleKickCommand(*this, client, params);
 	} else if (command == "MODE") {
 		handleModeCommand(*this, client, params);
 	}
