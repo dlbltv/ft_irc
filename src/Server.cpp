@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/05 19:07:35 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/09 18:48:58 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,8 +152,14 @@ void	Server::processMessage(int fd, const std::string& message) {
 	while ((pos = client->buffer.find("\n")) != std::string::npos) {
 		std::string line = client->buffer.substr(0, pos);
 		client->buffer.erase(0, pos + 2); // Remove processed line and CRLF
-		if (!line.empty())
+		if (!line.empty()){
 			parseCommand(client, line);
+
+			client = getClientByFd(fd);
+      // V--- Client was removed (QUIT or disconnected)
+			if (!client)
+				break;
+		}
 	}
 }
 
@@ -203,7 +209,10 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 		handleJoinCommand(*this, client, params);
 	} else if (command == "INVITE") {
 		handleInviteCommand(*this, client, params);
-	} else if (command == "PRIVMSG") {
+	} else if (command == "MODE") {
+		handleModeCommand(*this, client, params);
+	}
+	else if (command == "PRIVMSG") {
 		size_t splitPos = params.find(' ');
 		if (splitPos != std::string::npos) {
 			std::string target = params.substr(0, splitPos);
@@ -218,7 +227,7 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 }
 
 bool	Server::isNicknameUnique(const std::string& nickname) {
-	for (std::deque<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+	for (std::list<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
 		if (it->getNickname() == nickname)
 			return false;
 	}
@@ -240,7 +249,7 @@ void	Server::sendError(int fd, const std::string& code, const std::string& messa
 }
 
 void	Server::clearClients(int fd) {
-	for (std::deque<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+	for (std::list<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
 		if (it->getFd() == fd) {
 			// Erase client from the vector; do not manually delete it
 			clients.erase(it);
@@ -273,14 +282,14 @@ void	Server::closeFds() {
 	std::string	shutdownMsg = ":" + serverName + " NOTICE * :Server shutting down\r\n";
 
 	// Notify all clients about the shutdown and close their connections
-	for (size_t i = 0; i < clients.size(); ++i) {
-		send(clients[i].getFd(), shutdownMsg.c_str(), shutdownMsg.size(), 0);
+	for (std::list<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+		send(it->getFd(), shutdownMsg.c_str(), shutdownMsg.size(), 0);
 
 		// Log and close the client's connection
-		std::cout << RED << "Client <" << clients[i].getFd() << "> Disconnected" << RESET << std::endl;
-		close(clients[i].getFd());
+		std::cout << RED << "Client <" << it->getFd() << "> Disconnected" << RESET << std::endl;
+		close(it->getFd());
 	}
-	clients.clear(); // Clear the vector of clients
+	clients.clear(); // Clear the list of clients
 
 	// Delete all channels and clear the channels map
 	for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); ++it) {
@@ -306,9 +315,9 @@ void	Server::sendNotice(int fd, const std::string& message) {
 
 // -----------------------------------Getters-----------------------------------
 Client*	Server::getClientByFd(int fd) {
-	for (size_t i = 0; i < clients.size(); ++i) {
-		if (clients[i].getFd() == fd)
-			return &clients[i];
+	for (std::list<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+		if (it->getFd() == fd)
+			return &(*it);
 	}
 	return NULL;
 }
@@ -329,7 +338,7 @@ std::map<std::string, Channel*>& Server::getChannels() {
 }
 
 Client*	Server::getClientByNickname(const std::string& nickname) {
-	for (std::deque<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
+	for (std::list<Client>::iterator it = clients.begin(); it != clients.end(); ++it) {
 		if (it->getNickname() == nickname)
 			return &(*it); // Return a pointer to the matching client
 	}
