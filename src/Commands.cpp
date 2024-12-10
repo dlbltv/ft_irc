@@ -6,7 +6,7 @@
 /*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/10 10:52:19 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/10 19:18:58 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -291,8 +291,12 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 			std::stringstream sstring;
 			sstring << channel->getMemberNumber();
 			
-			server.sendNotice(client->getFd(), client->getNickname() + " " + channel->getName() + " " + sstring.str() + " :"
-				+ (!channel->getTopic().empty() ? channel->getTopic() : ""));
+			server.sendNotice(client->getFd(), 
+				client->getNickname() + " | " + 
+				"Channel: " + channel->getName() + " | " + 
+				"Members: " + sstring.str() + " | " +
+				"Members List: " + channel->getMemberList() +
+				(!channel->getTopic().empty() ? " | Topic: " + channel->getTopic() : ""));
 		}
 	}
 	else {
@@ -301,8 +305,12 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 		for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++) {
 			std::stringstream sstring;
 			sstring << it->second->getMemberNumber();
-			server.sendNotice(client->getFd(), client->getNickname() + " " + it->second->getName() + " " + sstring.str() + " :"
-				+ (!it->second->getTopic().empty() ? it->second->getTopic() : ""));
+			server.sendNotice(client->getFd(), 
+				client->getNickname() + " | " +
+				"Channel: " +  it->second->getName() + " | " +  
+				"Members: " +  sstring.str() + " | " +
+				"Members List: " + it->second->getMemberList() +
+				(!it->second->getTopic().empty() ? " | Topic: " + it->second->getTopic() : ""));
 		}
 
 	}
