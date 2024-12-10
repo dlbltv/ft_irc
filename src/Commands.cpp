@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/10 10:52:19 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/10 18:32:19 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -393,4 +393,27 @@ void	handleModeCommand(Server& server, Client* client, const std::string& params
 	// Notify the channel about the mode change
 	std::string modeMessage = ":" + client->getNickname() + " MODE " + channelName + " " + modeString + " " + modeParam + "\r\n";
 	channel->broadcast(modeMessage, client);
+}
+
+void	handleTopicCommand( Server& server, Client* client, const std::string& params) {
+/* 
+	if (params.empty)
+		error (not enough params)
+	else {
+		if (!channel)
+			error (no such channel)
+		else if (channel && new_topic) {
+			if (channel.mode != +t || channel.mode == +t && user.is_op())
+				set new topic
+			else
+				error (need to be operator (+t))
+		}
+		else {
+			if (!channel.topic)
+				error (no topic)
+			else
+				display topic
+		}
+	}
+*/
 }
