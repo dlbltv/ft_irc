@@ -214,7 +214,7 @@ void	handleQuitCommand(Server& server, Client* client, const std::string& messag
 void	handleHelpCommand(Server& server, Client* client, const std::string& argument) {
 	std::string helpMsg = ":Commands Available:\r\n";
 	if (argument.empty()) {
-		helpMsg += "\tPASS     NICK     USER     JOIN\r\n\tPRIVMSG  INVITE  QUIT\r\n:For more details type HELP -l\r\n";
+		helpMsg += "\tPASS     NICK     USER     LIST\r\n\tJOIN    PRIVMSG  INVITE  QUIT\r\n:For more details type HELP -l\r\n";
 		server.sendMessage(client->getFd(), helpMsg);
 		return;
 	} else if (argument != "-l") {
@@ -224,6 +224,7 @@ void	handleHelpCommand(Server& server, Client* client, const std::string& argume
 	helpMsg += "\t\e[34mPASS\e[0m : Usage: PASS <password>, authenticates you on the server\r\n";
 	helpMsg += "\t\e[34mNICK\e[0m : Usage: NICK <nickname>, sets your nick\r\n";
 	helpMsg += "\t\e[34mUSER\e[0m : Usage: USER <user_info>, sets your user info\r\n";
+	helpMsg += "\t\e[34mLIST\e[0m :\r\n";
 	helpMsg += "\t\e[34mJOIN\e[0m : Usage: JOIN <channel>, joins the channel\r\n";
 	helpMsg += "\t\e[34mPRIVMSG\e[0m : Usage: PRIVMSG <target> <message>, sends a message to the target (user/channel)\r\n";
 	helpMsg += "\t\e[34mINVITE\e[0m : Usage: INVITE <nick> <channel>, invites someone to a channel\r\n";
@@ -280,6 +281,33 @@ void	handleInviteCommand(Server& server, Client* inviter, const std::string& par
 	server.sendNotice(inviter->getFd(), "Invitation sent to " + targetNickname + " for channel " + channelName);
 }
 
+// Lists all channels, if a channel is specified, it displays the topic
+void handleListCommand(Server &server, Client *client, const std::string &channelName) {
+	server.sendNotice(client->getFd(), client->getNickname() + " Channel :Users Name");
+	if (!channelName.empty()) {
+		Channel *channel = server.getChannel(channelName);
+
+		if (channel) {
+			std::stringstream sstring;
+			sstring << channel->getMemberNumber();
+			
+			server.sendNotice(client->getFd(), client->getNickname() + " " + channel->getName() + " " + sstring.str() + " :"
+				+ (!channel->getTopic().empty() ? channel->getTopic() : ""));
+		}
+	}
+	else {
+		std::map<std::string, Channel*> channels = server.getChannels();
+
+		for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++) {
+			std::stringstream sstring;
+			sstring << it->second->getMemberNumber();
+			server.sendNotice(client->getFd(), client->getNickname() + " " + it->second->getName() + " " + sstring.str() + " :"
+				+ (!it->second->getTopic().empty() ? it->second->getTopic() : ""));
+		}
+
+	}
+	server.sendNotice(client->getFd(), client->getNickname() + " :End of channel list.");
+  
 void	handleModeCommand(Server& server, Client* client, const std::string& params) {
 	std::istringstream iss(params);
 	std::string channelName, modeString, modeParam;

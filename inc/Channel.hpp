@@ -25,6 +25,7 @@
 class Channel {
 	private:
 		std::string				name;
+		std::string				topic;
 		std::map<int, Client*>	members;	// Key: client FD, Value: Client pointer
 		std::set<int>			operators;	// Operator FDs
 		bool					inviteOnly;  	// Mode: 'i'
@@ -61,12 +62,18 @@ class Channel {
 
 		// Getters
 		const std::string&	getName() const;
+		const std::string&	getTopic() const;
 		std::string			getMemberList() const;
+    //check and delete after()
+		int					getMemberNumber() const;
+
 		int					getUserLimit() const;
 		size_t				getMemberCount() const;
 		const std::string&	getChannelKey() const;
+
 		
 		// Setters
+		void	setTopic(std::string newTopic);
 		void	setInviteOnly(bool status);
 		void	setTopicRestricted(bool status);
 		void	setChannelKey(const std::string& key);

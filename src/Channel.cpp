@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
 /*   Updated: 2024/12/05 18:30:42 by idelibal         ###   ########.fr       */
@@ -113,6 +113,10 @@ const std::string&	Channel::getName() const {
 	return name;
 }
 
+const std::string&	Channel::getTopic() const {
+	return topic;
+}
+
 std::string	Channel::getMemberList() const {
 	std::string	memberList;
 
@@ -124,6 +128,11 @@ std::string	Channel::getMemberList() const {
 	}
 
 	return memberList;
+}
+
+// check and delete after
+int	Channel::getMemberNumber() const {
+	return members.size();
 }
 
 int	Channel::getUserLimit() const {
