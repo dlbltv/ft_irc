@@ -6,7 +6,7 @@
 /*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/09 15:37:12 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/10 10:52:19 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -307,6 +307,7 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 
 	}
 	server.sendNotice(client->getFd(), client->getNickname() + " :End of channel list.");
+}
   
 void	handleModeCommand(Server& server, Client* client, const std::string& params) {
 	std::istringstream iss(params);
