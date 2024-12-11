@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/10 22:44:02 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/11 14:13:44 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -433,13 +433,13 @@ void handleKickCommand(Server& server, Client* kicker, const std::string& params
 	}
 
 	Client* targetClient = server.getClientByNickname(targetNickname);
-	if (!channel->isMember(targetClient)) {
-		server.sendError(kicker->getFd(), "441", targetNickname + " " + channelName + " :Hi isn't on that channel");
+	if (!targetClient) {
+		server.sendError(kicker->getFd(), "401", targetNickname + " :No such nick");
 		return;
 	}
 
-	if (!targetClient) {
-		server.sendError(kicker->getFd(), "401", targetNickname + " :No such nick");
+	if (!channel->isMember(targetClient)) {
+		server.sendError(kicker->getFd(), "441", targetNickname + " " + channelName + " :Hi isn't on that channel");
 		return;
 	}
 
