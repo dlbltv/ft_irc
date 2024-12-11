@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:54 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/05 19:06:10 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/11 17:55:10 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,5 +27,6 @@ void	handleHelpCommand(Server& server, Client* client, const std::string& argume
 void	handleInviteCommand(Server& server, Client* inviter, const std::string& params);
 void	handleListCommand(Server& server, Client* client, const std::string& channelName);
 void 	handleModeCommand(Server& server, Client* client, const std::string& params);
+void	handleTopicCommand( Server& server, Client* client, const std::string& params);
 
 #endif // COMMANDS_HPP

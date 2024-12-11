@@ -6,13 +6,13 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/05 18:30:42 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/11 18:49:57 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Channel.hpp"
 
-Channel::Channel(const std::string& name) : name(name), inviteOnly(false), userLimit(-1), inviteList() {}
+Channel::Channel(const std::string& name) : name(name), topic(""), inviteOnly(false), topicRestricted(false), userLimit(-1), inviteList(){}
 
 Channel::~Channel() {}
 
@@ -92,6 +92,12 @@ bool	Channel::isInviteOnly() const {
 	return inviteOnly;
 }
 
+bool	Channel::isTopicSet() const {
+	if (topic.empty())
+		return false;
+	return true;
+}
+
 bool	Channel::isTopicRestricted() const {
 	return topicRestricted;
 }
@@ -148,6 +154,9 @@ const std::string&	Channel::getChannelKey() const {
 }
 
 // -----------------------------------Setters-----------------------------------
+void	Channel::setTopic(std::string newTopic) {
+	topic = newTopic;
+}
 
 void	Channel::setInviteOnly(bool status) {
 	inviteOnly = status;
