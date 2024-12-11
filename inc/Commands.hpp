@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:54 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/10 22:24:07 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/11 16:32:41 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,5 +28,6 @@ void	handleInviteCommand(Server& server, Client* inviter, const std::string& par
 void	handleListCommand(Server& server, Client* client, const std::string& channelName);
 void 	handleModeCommand(Server& server, Client* client, const std::string& params);
 void	handleKickCommand(Server& server, Client* client, const std::string& params);
+void	handleNamesCommand(Server& server, Client* client, const std::string& params);
 
 #endif // COMMANDS_HPP

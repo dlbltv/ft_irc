@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/11 14:13:44 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/11 17:26:22 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -455,5 +455,93 @@ void handleKickCommand(Server& server, Client* kicker, const std::string& params
 	channel->broadcast(kickMessage);
 	// Notify the target client
 	server.sendMessage(targetClient->getFd(), kickMessage);
+}
+
+void handleNamesCommand(Server& server, Client* client, const std::string& params) {
+	std::vector<std::string> channelNames;
+	if (!params.empty()) {
+		std::istringstream iss(params);
+		std::string channelName;
+		while (std::getline(iss, channelName, ',')) {
+			channelNames.push_back(channelName);
+		}
+	}
+
+	std::map<std::string, std::vector<std::string> > namesList;
+
+	// Collect channel members
+	if (channelNames.empty()) {
+		// If no channels specified, include all channels
+		std::map<std::string, Channel*>::const_iterator it;
+		for (it = server.getChannels().begin(); it != server.getChannels().end(); ++it) {
+			Channel* channel = it->second;
+			std::istringstream membersStream(channel->getMemberList());
+			std::vector<std::string> members;
+			std::string member;
+			while (membersStream >> member) {
+				members.push_back(member);
+			}
+			namesList[channel->getName()] = members;
+		}
+	} else {
+		for (std::vector<std::string>::iterator it = channelNames.begin(); it != channelNames.end(); ++it) {
+			Channel* channel = server.getChannel(*it);
+			if (!channel) {
+				server.sendError(client->getFd(), "403", *it + " :No such channel");
+				return;
+			}
+			std::istringstream membersStream(channel->getMemberList());
+			std::vector<std::string> members;
+			std::string member;
+			while (membersStream >> member) {
+				members.push_back(member);
+			}
+			namesList[channel->getName()] = members;
+		}
+	}
+
+	// Collect users not in any channel
+	std::vector<std::string> ungroupedUsers;
+	std::list<Client>::iterator clientIt;
+	const std::list<Client>& allClients = server.getClients();
+	for (std::list<Client>::const_iterator clientIt = allClients.begin(); clientIt != allClients.end(); ++clientIt) {
+		Client* currentClient = const_cast<Client*>(&(*clientIt));
+		bool inChannel = false;
+
+		std::map<std::string, Channel*>::const_iterator channelIt;
+		for (channelIt = server.getChannels().begin(); channelIt != server.getChannels().end(); ++channelIt) {
+			Channel* channel = channelIt->second;
+			if (channel->isMember(currentClient)) {
+				inChannel = true;
+				break;
+			}
+		}
+		if (!inChannel) {
+			ungroupedUsers.push_back(currentClient->getNickname());
+		}
+	}
+	if (!ungroupedUsers.empty()) {
+		namesList["unchanneled"] = ungroupedUsers;
+	}
+
+	// Send the NAMES list
+	std::map<std::string, std::vector<std::string> >::iterator namesIt;
+	for (namesIt = namesList.begin(); namesIt != namesList.end(); ++namesIt) {
+		const std::string& channelName = namesIt->first;
+		const std::vector<std::string>& members = namesIt->second;
+
+		std::string reply = ":" + server.getServerName() + " 353 " + client->getNickname() +
+  							" = " + channelName + " :";
+		
+		for (std::vector<std::string>::const_iterator memberIt = members.begin(); memberIt != members.end(); ++memberIt) {
+			reply += *memberIt + " ";
+		}
+		reply += "\r\n";
+		server.sendMessage(client->getFd(), reply);
+	}
+	
+	std::string endReply = ":" + server.getServerName() + " 366 " + client->getNickname() +
+							" :End of /NAMES list\r\n";
+	server.sendMessage(client->getFd(), endReply);
 }
 
