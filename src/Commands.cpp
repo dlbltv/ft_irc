@@ -6,7 +6,7 @@
 /*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/11 21:27:53 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/11 21:44:34 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -478,8 +478,11 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 			std::istringstream membersStream(channel->getMemberList());
 			std::vector<std::string> members;
 			std::string member;
+
 			while (membersStream >> member) {
-				members.push_back(member);
+				Client* memberClient = server.getClientByNickname(member);
+				std::string prefix = (memberClient && channel->isOperator(memberClient)) ? "@" : "";
+				members.push_back(prefix + member);
 			}
 			namesList[channel->getName()] = members;
 		}
@@ -517,8 +520,11 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 			std::istringstream membersStream(channel->getMemberList());
 			std::vector<std::string> members;
 			std::string member;
+
 			while (membersStream >> member) {
-				members.push_back(member);
+				Client* memberClient = server.getClientByNickname(member);
+				std::string prefix = (memberClient && channel->isOperator(memberClient)) ? "@" : "";
+				members.push_back(prefix + member);
 			}
 			namesList[channel->getName()] = members;
 		}
