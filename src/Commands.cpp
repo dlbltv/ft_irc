@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/11 17:26:22 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/11 21:27:53 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -483,6 +483,30 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 			}
 			namesList[channel->getName()] = members;
 		}
+
+		// Collect users not in any channel
+		std::vector<std::string> ungroupedUsers;
+		std::list<Client>::iterator clientIt;
+		const std::list<Client>& allClients = server.getClients();
+		for (std::list<Client>::const_iterator clientIt = allClients.begin(); clientIt != allClients.end(); ++clientIt) {
+			Client* currentClient = const_cast<Client*>(&(*clientIt));
+			bool inChannel = false;
+
+			std::map<std::string, Channel*>::const_iterator channelIt;
+			for (channelIt = server.getChannels().begin(); channelIt != server.getChannels().end(); ++channelIt) {
+				Channel* channel = channelIt->second;
+				if (channel->isMember(currentClient)) {
+					inChannel = true;
+					break;
+				}
+			}
+			if (!inChannel) {
+				ungroupedUsers.push_back(currentClient->getNickname());
+			}
+		}
+		if (!ungroupedUsers.empty()) {
+			namesList["unchanneled"] = ungroupedUsers;
+		}
 	} else {
 		for (std::vector<std::string>::iterator it = channelNames.begin(); it != channelNames.end(); ++it) {
 			Channel* channel = server.getChannel(*it);
@@ -498,30 +522,6 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 			}
 			namesList[channel->getName()] = members;
 		}
-	}
-
-	// Collect users not in any channel
-	std::vector<std::string> ungroupedUsers;
-	std::list<Client>::iterator clientIt;
-	const std::list<Client>& allClients = server.getClients();
-	for (std::list<Client>::const_iterator clientIt = allClients.begin(); clientIt != allClients.end(); ++clientIt) {
-		Client* currentClient = const_cast<Client*>(&(*clientIt));
-		bool inChannel = false;
-
-		std::map<std::string, Channel*>::const_iterator channelIt;
-		for (channelIt = server.getChannels().begin(); channelIt != server.getChannels().end(); ++channelIt) {
-			Channel* channel = channelIt->second;
-			if (channel->isMember(currentClient)) {
-				inChannel = true;
-				break;
-			}
-		}
-		if (!inChannel) {
-			ungroupedUsers.push_back(currentClient->getNickname());
-		}
-	}
-	if (!ungroupedUsers.empty()) {
-		namesList["unchanneled"] = ungroupedUsers;
 	}
 
 	// Send the NAMES list
