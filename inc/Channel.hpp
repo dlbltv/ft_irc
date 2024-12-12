@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:00 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/04 22:51:01 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/11 18:39:43 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ class Channel {
 		bool	isMember(Client* client) const;
 		bool 	isInvited(const std::string& nickname) const;
 		bool 	isInviteOnly() const;
+		bool	isTopicSet() const;
 		bool 	isTopicRestricted() const;
 		bool 	hasChannelKey() const;
 		bool 	hasUserLimit() const;

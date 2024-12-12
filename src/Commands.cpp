@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/11 21:44:34 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/11 18:54:04 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,21 +214,26 @@ void	handleQuitCommand(Server& server, Client* client, const std::string& messag
 void	handleHelpCommand(Server& server, Client* client, const std::string& argument) {
 	std::string helpMsg = ":Commands Available:\r\n";
 	if (argument.empty()) {
-		helpMsg += "\tPASS     NICK     USER     LIST\r\n\tJOIN    PRIVMSG  INVITE  QUIT\r\n:For more details type HELP -l\r\n";
+		helpMsg += "\tINVITE    JOIN      LIST      MODE\r\n";
+		helpMsg += "\tNICK      PASS      PRIVMSG   QUIT\r\n";
+		helpMsg += "\tTOPIC     USER\r\n";
+		helpMsg += ":For more details type HELP -l\r\n";
 		server.sendMessage(client->getFd(), helpMsg);
 		return;
 	} else if (argument != "-l") {
 		server.sendError(client->getFd(), "401", argument + ": No such option");
 		return;
 	}
-	helpMsg += "\t\e[34mPASS\e[0m : Usage: PASS <password>, authenticates you on the server\r\n";
-	helpMsg += "\t\e[34mNICK\e[0m : Usage: NICK <nickname>, sets your nick\r\n";
-	helpMsg += "\t\e[34mUSER\e[0m : Usage: USER <user_info>, sets your user info\r\n";
-	helpMsg += "\t\e[34mLIST\e[0m :\r\n";
-	helpMsg += "\t\e[34mJOIN\e[0m : Usage: JOIN <channel>, joins the channel\r\n";
-	helpMsg += "\t\e[34mPRIVMSG\e[0m : Usage: PRIVMSG <target> <message>, sends a message to the target (user/channel)\r\n";
 	helpMsg += "\t\e[34mINVITE\e[0m : Usage: INVITE <nick> <channel>, invites someone to a channel\r\n";
+	helpMsg += "\t\e[34mJOIN\e[0m : Usage: JOIN <channel>, joins the channel\r\n";
+	helpMsg += "\t\e[34mLIST\e[0m :\r\n";
+	helpMsg += "\t\e[34mMODE\e[0m :\r\n";
+	helpMsg += "\t\e[34mNICK\e[0m : Usage: NICK <nickname>, sets your nick\r\n";
+	helpMsg += "\t\e[34mPASS\e[0m : Usage: PASS <password>, authenticates you on the server\r\n";
+	helpMsg += "\t\e[34mPRIVMSG\e[0m : Usage: PRIVMSG <target> <message>, sends a message to the target (user/channel)\r\n";
 	helpMsg += "\t\e[34mQUIT\e[0m : Usage: QUIT [<reason>], disconnects from the server\r\n";
+	helpMsg += "\t\e[34mTOPIC\e[0m : Usage: TOPIC [<topic>], sets the topic if one is given, else shows the current topic\r\n";
+	helpMsg += "\t\e[34mUSER\e[0m : Usage: USER <user_info>, sets your user info\r\n";
 	server.sendMessage(client->getFd(), helpMsg);
 }
 
@@ -316,7 +321,7 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 	}
 	server.sendNotice(client->getFd(), client->getNickname() + " :End of channel list.");
 }
-  
+
 void	handleModeCommand(Server& server, Client* client, const std::string& params) {
 	std::istringstream iss(params);
 	std::string channelName, modeString, modeParam;
@@ -401,6 +406,40 @@ void	handleModeCommand(Server& server, Client* client, const std::string& params
 	// Notify the channel about the mode change
 	std::string modeMessage = ":" + client->getNickname() + " MODE " + channelName + " " + modeString + " " + modeParam + "\r\n";
 	channel->broadcast(modeMessage, client);
+}
+
+void	handleTopicCommand( Server& server, Client* client, const std::string& params) {
+	if (params.empty()) {
+		server.sendError(client->getFd(), "461", "TOPIC :Not enough parameters");
+		return;
+	}
+
+	std::istringstream	iss(params);
+	std::string			channelName, topic;
+	iss >> channelName >> topic;
+
+	Channel	*channel = server.getChannel(channelName);
+	if (!channel)
+		server.sendError(client->getFd(), "403", channelName + " :No such channel");
+
+	else if (topic.empty()) {
+		if (!channel->isTopicSet())
+			server.sendNotice(client->getFd(), "331 :" + channelName + " :No topic is set\n");
+		else
+			server.sendNotice(client->getFd(), "332 :" + channelName + " :" + channel->getTopic() + "\n");
+	}
+
+	else {
+		if (!channel->isMember(client))
+			server.sendError(client->getFd(), "442", channelName + " :You're not on that channel");
+		else if (!channel->isTopicRestricted() || (channel->isTopicRestricted() && channel->isOperator(client))) {
+			channel->setTopic(topic);
+			channel->broadcast(":" + client->getNickname() + " TOPIC " + channelName + " :" + topic + "\n", client);
+		}
+		else
+			server.sendError(client->getFd(), "482", channelName + " :You're not channel operator");
+	}
+	return;
 }
 
 void handleKickCommand(Server& server, Client* kicker, const std::string& params) {
@@ -550,4 +589,3 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 							" :End of /NAMES list\r\n";
 	server.sendMessage(client->getFd(), endReply);
 }
-
