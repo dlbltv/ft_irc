@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:43:50 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/09 18:41:14 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/11 17:06:05 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,9 +76,8 @@ class Server {
 		Channel*							getChannel(const std::string& name);
 		std::map<std::string, Channel*>&	getChannels();
 		Client*								getClientByNickname(const std::string& nickname);
-		const std::string&					getServerName() const {
-			return serverName;
-		}
+		const std::string&					getServerName() const;
+		const std::list<Client>&			getClients() const;
 };
 
 #endif // SERVER_HPP
