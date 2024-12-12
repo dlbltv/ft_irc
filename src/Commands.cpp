@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/12 19:23:12 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/12 20:31:41 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,9 @@ void	handlePassCommand(Server& server, Client* client, const std::string& pass) 
 	}
 	if (pass != server.getPassword()) { // Assume Server has a `getPassword()` function
 		server.sendError(client->getFd(), "464", "PASS :Password incorrect");
-		server.clearClients(client->getFd());
-		close(client->getFd());
+		int clientFd = client->getFd();
+		server.clearClients(clientFd);
+		close(clientFd);
 	} else {
 		client->setAuthenticationStatus(true);
 		 client->setHasProvidedPassword(true);
