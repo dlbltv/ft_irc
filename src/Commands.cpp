@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/11 18:54:04 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/12 15:54:08 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,8 +214,9 @@ void	handleQuitCommand(Server& server, Client* client, const std::string& messag
 void	handleHelpCommand(Server& server, Client* client, const std::string& argument) {
 	std::string helpMsg = ":Commands Available:\r\n";
 	if (argument.empty()) {
-		helpMsg += "\tINVITE    JOIN      LIST      MODE\r\n";
-		helpMsg += "\tNICK      PASS      PRIVMSG   QUIT\r\n";
+		helpMsg += "\tINVITE    JOIN      KICK      LIST\r\n";
+		helpMsg += "\tMODE      NAMES     NICK      PASS\r\n";
+		helpMsg += "\tPRIVMSG   QUIT\r\n";
 		helpMsg += "\tTOPIC     USER\r\n";
 		helpMsg += ":For more details type HELP -l\r\n";
 		server.sendMessage(client->getFd(), helpMsg);
@@ -226,8 +227,10 @@ void	handleHelpCommand(Server& server, Client* client, const std::string& argume
 	}
 	helpMsg += "\t\e[34mINVITE\e[0m : Usage: INVITE <nick> <channel>, invites someone to a channel\r\n";
 	helpMsg += "\t\e[34mJOIN\e[0m : Usage: JOIN <channel>, joins the channel\r\n";
+	helpMsg += "\t\e[34mKICK\e[0m : KICK <nick> [reason], kicks the nick from the current channel (needs chanop)\r\n";
 	helpMsg += "\t\e[34mLIST\e[0m :\r\n";
 	helpMsg += "\t\e[34mMODE\e[0m :\r\n";
+	helpMsg += "\t\e[34mNAMES\e[0m : Usage: NAMES [<channel>], Lists the nicks on the channel\r\n";
 	helpMsg += "\t\e[34mNICK\e[0m : Usage: NICK <nickname>, sets your nick\r\n";
 	helpMsg += "\t\e[34mPASS\e[0m : Usage: PASS <password>, authenticates you on the server\r\n";
 	helpMsg += "\t\e[34mPRIVMSG\e[0m : Usage: PRIVMSG <target> <message>, sends a message to the target (user/channel)\r\n";
