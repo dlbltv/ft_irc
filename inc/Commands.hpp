@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:54 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/11 17:55:10 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/12 18:41:58 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,5 +30,6 @@ void 	handleModeCommand(Server& server, Client* client, const std::string& param
 void	handleTopicCommand( Server& server, Client* client, const std::string& params);
 void	handleKickCommand(Server& server, Client* client, const std::string& params);
 void	handleNamesCommand(Server& server, Client* client, const std::string& params);
+void	handleDieCommand(Server& server, Client* client);
 
 #endif // COMMANDS_HPP

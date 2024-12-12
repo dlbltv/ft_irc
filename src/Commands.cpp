@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/12 15:54:08 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/12 19:23:12 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -591,4 +591,33 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 	std::string endReply = ":" + server.getServerName() + " 366 " + client->getNickname() +
 							" :End of /NAMES list\r\n";
 	server.sendMessage(client->getFd(), endReply);
+}
+
+void	handleDieCommand(Server& server, Client* client) {
+
+	bool isGlobalOperator = false;
+	
+	for (std::map<std::string, Channel*>::const_iterator it = server.getChannels().begin();
+		it != server.getChannels().end(); ++it) {
+		Channel* channel = it->second;
+		if (channel->isOperator(client)) {
+			isGlobalOperator = true;
+			break;
+		}
+	}
+	
+	if(!isGlobalOperator) {
+		server.sendError(client->getFd(), "481", "DIE :Permission Denied- You're not an IRC operator");
+		return;
+	}
+
+	if (client) {
+		std::cout << "Server is shutting down by request of " << client->getNickname() << std::endl;
+	} else {
+		std::cout << "Server is shutting down" << std::endl;
+	}
+	
+	server.closeFds();
+	
+	exit(0);
 }
