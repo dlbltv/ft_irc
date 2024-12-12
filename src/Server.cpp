@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/09 18:48:58 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/11 17:07:58 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,6 +209,10 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 		handleJoinCommand(*this, client, params);
 	} else if (command == "INVITE") {
 		handleInviteCommand(*this, client, params);
+	} else if (command == "KICK") {
+		handleKickCommand(*this, client, params);
+	} else if (command == "NAMES") {
+		handleNamesCommand(*this, client, params);
 	} else if (command == "MODE") {
 		handleModeCommand(*this, client, params);
 	}
@@ -343,4 +347,13 @@ Client*	Server::getClientByNickname(const std::string& nickname) {
 			return &(*it); // Return a pointer to the matching client
 	}
 	return NULL; // Return NULL if no client with the _nickname exists
+}
+
+const std::string& Server::getServerName() const {
+	return serverName;
+}
+
+const std::list<Client>& Server::getClients() const
+{
+	return clients;
 }

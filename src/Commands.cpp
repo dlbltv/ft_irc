@@ -6,7 +6,7 @@
 /*   By: idlbltv <idlbltv@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/10 10:52:19 by idlbltv          ###   ########.fr       */
+/*   Updated: 2024/12/11 21:44:34 by idlbltv          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -291,8 +291,12 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 			std::stringstream sstring;
 			sstring << channel->getMemberNumber();
 			
-			server.sendNotice(client->getFd(), client->getNickname() + " " + channel->getName() + " " + sstring.str() + " :"
-				+ (!channel->getTopic().empty() ? channel->getTopic() : ""));
+			server.sendNotice(client->getFd(), 
+				client->getNickname() + " | " + 
+				"Channel: " + channel->getName() + " | " + 
+				"Members: " + sstring.str() + " | " +
+				"Members List: " + channel->getMemberList() +
+				(!channel->getTopic().empty() ? " | Topic: " + channel->getTopic() : ""));
 		}
 	}
 	else {
@@ -301,8 +305,12 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 		for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++) {
 			std::stringstream sstring;
 			sstring << it->second->getMemberNumber();
-			server.sendNotice(client->getFd(), client->getNickname() + " " + it->second->getName() + " " + sstring.str() + " :"
-				+ (!it->second->getTopic().empty() ? it->second->getTopic() : ""));
+			server.sendNotice(client->getFd(), 
+				client->getNickname() + " | " +
+				"Channel: " +  it->second->getName() + " | " +  
+				"Members: " +  sstring.str() + " | " +
+				"Members List: " + it->second->getMemberList() +
+				(!it->second->getTopic().empty() ? " | Topic: " + it->second->getTopic() : ""));
 		}
 
 	}
@@ -394,3 +402,152 @@ void	handleModeCommand(Server& server, Client* client, const std::string& params
 	std::string modeMessage = ":" + client->getNickname() + " MODE " + channelName + " " + modeString + " " + modeParam + "\r\n";
 	channel->broadcast(modeMessage, client);
 }
+
+void handleKickCommand(Server& server, Client* kicker, const std::string& params) {
+	std::istringstream iss(params);
+	std::string channelName, targetNickname, reason;
+	iss >> channelName >> targetNickname;
+	
+	std::getline(iss, reason);
+	reason = reason.empty() ? "No reason specified" : reason.substr(1); // Remove leading space
+
+	if (channelName.empty() || targetNickname.empty()) {
+		server.sendError(kicker->getFd(), "461", "KICK :Not enough parameters");
+		return;
+	}
+
+	Channel* channel = server.getChannel(channelName);
+	if (!channel) {
+		server.sendError(kicker->getFd(), "403", channelName + " :No such channel");
+		return;
+	}
+
+	if (!channel->isMember(kicker)) {
+		server.sendError(kicker->getFd(), "442", channelName + " :You're not on that channel");
+		return;
+	}
+
+	if (!channel->isOperator(kicker)) {
+		server.sendError(kicker->getFd(), "482", channelName + " :You're not a channel operator");
+		return;
+	}
+
+	Client* targetClient = server.getClientByNickname(targetNickname);
+	if (!targetClient) {
+		server.sendError(kicker->getFd(), "401", targetNickname + " :No such nick");
+		return;
+	}
+
+	if (!channel->isMember(targetClient)) {
+		server.sendError(kicker->getFd(), "441", targetNickname + " " + channelName + " :Hi isn't on that channel");
+		return;
+	}
+
+	if (targetClient == kicker) {
+		server.sendError(kicker->getFd(), "485", " :You can't kick yourself");
+		return;
+	}
+
+	// Remove the client from the channel
+	channel->removeMember(targetClient);
+	// Notify all channel members about the kick
+	std::string kickMessage = ":" + kicker->getNickname() + " KICK " + channelName + " " + targetNickname + " :" + reason + "\r\n";
+	channel->broadcast(kickMessage);
+	// Notify the target client
+	server.sendMessage(targetClient->getFd(), kickMessage);
+}
+
+void handleNamesCommand(Server& server, Client* client, const std::string& params) {
+	std::vector<std::string> channelNames;
+	if (!params.empty()) {
+		std::istringstream iss(params);
+		std::string channelName;
+		while (std::getline(iss, channelName, ',')) {
+			channelNames.push_back(channelName);
+		}
+	}
+
+	std::map<std::string, std::vector<std::string> > namesList;
+
+	// Collect channel members
+	if (channelNames.empty()) {
+		// If no channels specified, include all channels
+		std::map<std::string, Channel*>::const_iterator it;
+		for (it = server.getChannels().begin(); it != server.getChannels().end(); ++it) {
+			Channel* channel = it->second;
+			std::istringstream membersStream(channel->getMemberList());
+			std::vector<std::string> members;
+			std::string member;
+
+			while (membersStream >> member) {
+				Client* memberClient = server.getClientByNickname(member);
+				std::string prefix = (memberClient && channel->isOperator(memberClient)) ? "@" : "";
+				members.push_back(prefix + member);
+			}
+			namesList[channel->getName()] = members;
+		}
+
+		// Collect users not in any channel
+		std::vector<std::string> ungroupedUsers;
+		std::list<Client>::iterator clientIt;
+		const std::list<Client>& allClients = server.getClients();
+		for (std::list<Client>::const_iterator clientIt = allClients.begin(); clientIt != allClients.end(); ++clientIt) {
+			Client* currentClient = const_cast<Client*>(&(*clientIt));
+			bool inChannel = false;
+
+			std::map<std::string, Channel*>::const_iterator channelIt;
+			for (channelIt = server.getChannels().begin(); channelIt != server.getChannels().end(); ++channelIt) {
+				Channel* channel = channelIt->second;
+				if (channel->isMember(currentClient)) {
+					inChannel = true;
+					break;
+				}
+			}
+			if (!inChannel) {
+				ungroupedUsers.push_back(currentClient->getNickname());
+			}
+		}
+		if (!ungroupedUsers.empty()) {
+			namesList["unchanneled"] = ungroupedUsers;
+		}
+	} else {
+		for (std::vector<std::string>::iterator it = channelNames.begin(); it != channelNames.end(); ++it) {
+			Channel* channel = server.getChannel(*it);
+			if (!channel) {
+				server.sendError(client->getFd(), "403", *it + " :No such channel");
+				return;
+			}
+			std::istringstream membersStream(channel->getMemberList());
+			std::vector<std::string> members;
+			std::string member;
+
+			while (membersStream >> member) {
+				Client* memberClient = server.getClientByNickname(member);
+				std::string prefix = (memberClient && channel->isOperator(memberClient)) ? "@" : "";
+				members.push_back(prefix + member);
+			}
+			namesList[channel->getName()] = members;
+		}
+	}
+
+	// Send the NAMES list
+	std::map<std::string, std::vector<std::string> >::iterator namesIt;
+	for (namesIt = namesList.begin(); namesIt != namesList.end(); ++namesIt) {
+		const std::string& channelName = namesIt->first;
+		const std::vector<std::string>& members = namesIt->second;
+
+		std::string reply = ":" + server.getServerName() + " 353 " + client->getNickname() +
+  							" = " + channelName + " :";
+		
+		for (std::vector<std::string>::const_iterator memberIt = members.begin(); memberIt != members.end(); ++memberIt) {
+			reply += *memberIt + " ";
+		}
+		reply += "\r\n";
+		server.sendMessage(client->getFd(), reply);
+	}
+	
+	std::string endReply = ":" + server.getServerName() + " 366 " + client->getNickname() +
+							" :End of /NAMES list\r\n";
+	server.sendMessage(client->getFd(), endReply);
+}
+
