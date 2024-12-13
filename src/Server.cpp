@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/11 17:55:01 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/12 19:30:42 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,8 +217,9 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 		handleNamesCommand(*this, client, params);
 	} else if (command == "MODE") {
 		handleModeCommand(*this, client, params);
-	}
-	else if (command == "PRIVMSG") {
+	} else if (command == "DIE") {
+		handleDieCommand(*this, client);
+	} else if (command == "PRIVMSG") {
 		size_t splitPos = params.find(' ');
 		if (splitPos != std::string::npos) {
 			std::string target = params.substr(0, splitPos);
@@ -303,6 +304,9 @@ void	Server::closeFds() {
 	}
 	channels.clear(); // Clear the map
 
+	// fds.clear(); // Clear the vector of pollfd structures
+	std::vector<struct pollfd>().swap(fds);
+
 	// Close the server socket
 	if (serSocketFd != -1) {
 		std::cout << RED << "Server <" << serSocketFd << "> Disconnected" << RESET << std::endl;
@@ -355,7 +359,6 @@ const std::string& Server::getServerName() const {
 	return serverName;
 }
 
-const std::list<Client>& Server::getClients() const
-{
+const std::list<Client>& Server::getClients() const {
 	return clients;
 }
