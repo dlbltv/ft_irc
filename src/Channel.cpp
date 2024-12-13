@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/11 18:49:57 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/13 17:11:35 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,11 +134,6 @@ std::string	Channel::getMemberList() const {
 	}
 
 	return memberList;
-}
-
-// check and delete after
-int	Channel::getMemberNumber() const {
-	return members.size();
 }
 
 int	Channel::getUserLimit() const {
