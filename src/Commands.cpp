@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/13 19:05:29 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/13 19:32:32 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ void	handlePassCommand(Server& server, Client* client, const std::string& pass) 
 		return;
 	}
 	if (pass != server.getPassword()) { // Assume Server has a `getPassword()` function
-		std::cout << pass.compare(server.getPassword()) << std::endl;
 		server.sendError(client->getFd(), "464", "PASS :Password incorrect");
 		int clientFd = client->getFd();
 		server.clearClients(clientFd);
