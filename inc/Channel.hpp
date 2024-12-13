@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:00 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/11 18:39:43 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/13 17:11:27 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,9 +65,6 @@ class Channel {
 		const std::string&	getName() const;
 		const std::string&	getTopic() const;
 		std::string			getMemberList() const;
-    //check and delete after()
-		int					getMemberNumber() const;
-
 		int					getUserLimit() const;
 		size_t				getMemberCount() const;
 		const std::string&	getChannelKey() const;

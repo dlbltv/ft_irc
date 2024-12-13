@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/12 15:54:08 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/13 17:44:21 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -297,7 +297,7 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 
 		if (channel) {
 			std::stringstream sstring;
-			sstring << channel->getMemberNumber();
+			sstring << channel->getMemberCount();
 			
 			server.sendNotice(client->getFd(), 
 				client->getNickname() + " | " + 
@@ -312,7 +312,7 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 
 		for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++) {
 			std::stringstream sstring;
-			sstring << it->second->getMemberNumber();
+			sstring << it->second->getMemberCount();
 			server.sendNotice(client->getFd(), 
 				client->getNickname() + " | " +
 				"Channel: " +  it->second->getName() + " | " +  
