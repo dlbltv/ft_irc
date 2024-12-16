@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/13 19:32:32 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/16 18:12:21 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,12 +90,12 @@ void handleJoinCommand(Server& server, Client* client, const std::string& params
 	std::istringstream iss(params);
 	std::string channelName, channelKey;
 	iss >> channelName >> channelKey;
-	
+
 	if (channelName.empty()) {
 		server.sendError(client->getFd(), "461", "JOIN :Not enough parameters");
 		return;
 	}
-	
+
 	// Fetch or create the channel
 	Channel*	channel = server.getChannel(channelName);
 	if (!channel) {
@@ -217,8 +217,7 @@ void	handleHelpCommand(Server& server, Client* client, const std::string& argume
 	if (argument.empty()) {
 		helpMsg += "\tINVITE    JOIN      KICK      LIST\r\n";
 		helpMsg += "\tMODE      NAMES     NICK      PASS\r\n";
-		helpMsg += "\tPRIVMSG   QUIT\r\n";
-		helpMsg += "\tTOPIC     USER\r\n";
+		helpMsg += "\tPRIVMSG   QUIT      TOPIC     USER\r\n";
 		helpMsg += ":For more details type HELP -l\r\n";
 		server.sendMessage(client->getFd(), helpMsg);
 		return;
@@ -263,7 +262,7 @@ void	handleInviteCommand(Server& server, Client* inviter, const std::string& par
 		server.sendError(inviter->getFd(), "401", targetNickname + " :No such nick");
 		return;
 	}
-	
+
 	Channel* channel = server.getChannel(channelName);
 	if (channel) {
 		if (!channel->isMember(inviter)) {
@@ -299,7 +298,7 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 		if (channel) {
 			std::stringstream sstring;
 			sstring << channel->getMemberCount();
-			
+
 			server.sendMessage(client->getFd(), ":" + server.getServerName() + " 322 " + client->getNickname() + " " +
 				channel->getName() + " " + sstring.str() + " :" + (!channel->getTopic().empty() ? channel->getTopic() : ""));
 		}
@@ -421,9 +420,9 @@ void	handleTopicCommand( Server& server, Client* client, const std::string& para
 
 	else if (topic.empty()) {
 		if (!channel->isTopicSet())
-			server.sendNotice(client->getFd(), "331 :" + channelName + " :No topic is set\n");
+			server.sendError(client->getFd(), "331", channelName + " :No topic is set");
 		else
-			server.sendNotice(client->getFd(), "332 :" + channelName + " :" + channel->getTopic() + "\n");
+			server.sendError(client->getFd(), "332", channelName + " :" + channel->getTopic());
 	}
 
 	else {
@@ -443,7 +442,7 @@ void handleKickCommand(Server& server, Client* kicker, const std::string& params
 	std::istringstream iss(params);
 	std::string channelName, targetNickname, reason;
 	iss >> channelName >> targetNickname;
-	
+
 	std::getline(iss, reason);
 	reason = reason.empty() ? "No reason specified" : reason.substr(1); // Remove leading space
 
@@ -574,14 +573,14 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 
 		std::string reply = ":" + server.getServerName() + " 353 " + client->getNickname() +
   							" = " + channelName + " :";
-		
+
 		for (std::vector<std::string>::const_iterator memberIt = members.begin(); memberIt != members.end(); ++memberIt) {
 			reply += *memberIt + " ";
 		}
 		reply += "\r\n";
 		server.sendMessage(client->getFd(), reply);
 	}
-	
+
 	std::string endReply = ":" + server.getServerName() + " 366 " + client->getNickname() +
 							" :End of /NAMES list\r\n";
 	server.sendMessage(client->getFd(), endReply);
@@ -590,7 +589,7 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 void	handleDieCommand(Server& server, Client* client) {
 
 	bool isGlobalOperator = false;
-	
+
 	for (std::map<std::string, Channel*>::const_iterator it = server.getChannels().begin();
 		it != server.getChannels().end(); ++it) {
 		Channel* channel = it->second;
@@ -599,7 +598,7 @@ void	handleDieCommand(Server& server, Client* client) {
 			break;
 		}
 	}
-	
+
 	if(!isGlobalOperator) {
 		server.sendError(client->getFd(), "481", "DIE :Permission Denied- You're not an IRC operator");
 		return;
@@ -610,8 +609,8 @@ void	handleDieCommand(Server& server, Client* client) {
 	} else {
 		std::cout << "Server is shutting down" << std::endl;
 	}
-	
+
 	server.closeFds();
-	
+
 	exit(0);
 }
