@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/16 18:18:08 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/16 18:20:35 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -331,7 +331,7 @@ void	handleModeCommand(Server& server, Client* client, const std::string& params
 	}
 
 	if (modeString.empty()) {
-		server.sendError(client->getFd(), "461", "MODE :Not enough parameters");
+		server.sendError(client->getFd(), "324", channelName + " :" + channel->getModes());
 		return;
 	}
 
