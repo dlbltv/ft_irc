@@ -290,9 +290,9 @@ void	handleInviteCommand(Server& server, Client* inviter, const std::string& par
 	server.sendNotice(inviter->getFd(), "Invitation sent to " + targetNickname + " for channel " + channelName);
 }
 
-// Lists all channels, if a channel is specified, it displays the topic
+// Lists all channels and their topics, if a channel is specified, it only displays that one
 void handleListCommand(Server &server, Client *client, const std::string &channelName) {
-	server.sendNotice(client->getFd(), client->getNickname() + " Channel :Users Name");
+	server.sendMessage(client->getFd(), ":" + server.getServerName() + " 321 " + client->getNickname() + " Channel :Users Name");
 	if (!channelName.empty()) {
 		Channel *channel = server.getChannel(channelName);
 
@@ -300,12 +300,8 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 			std::stringstream sstring;
 			sstring << channel->getMemberCount();
 			
-			server.sendNotice(client->getFd(), 
-				client->getNickname() + " | " + 
-				"Channel: " + channel->getName() + " | " + 
-				"Members: " + sstring.str() + " | " +
-				"Members List: " + channel->getMemberList() +
-				(!channel->getTopic().empty() ? " | Topic: " + channel->getTopic() : ""));
+			server.sendMessage(client->getFd(), ":" + server.getServerName() + " 322 " + client->getNickname() + " " +
+				channel->getName() + " " + sstring.str() + " :" + (!channel->getTopic().empty() ? channel->getTopic() : ""));
 		}
 	}
 	else {
@@ -314,16 +310,13 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 		for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++) {
 			std::stringstream sstring;
 			sstring << it->second->getMemberCount();
-			server.sendNotice(client->getFd(), 
-				client->getNickname() + " | " +
-				"Channel: " +  it->second->getName() + " | " +  
-				"Members: " +  sstring.str() + " | " +
-				"Members List: " + it->second->getMemberList() +
-				(!it->second->getTopic().empty() ? " | Topic: " + it->second->getTopic() : ""));
+			server.sendMessage(client->getFd(), ":" + server.getServerName() + " 322 " + client->getNickname() + " " +
+				it->second->getName() + " " + sstring.str() + " :" +
+				(!it->second->getTopic().empty() ? it->second->getTopic() : ""));
 		}
 
 	}
-	server.sendNotice(client->getFd(), client->getNickname() + " :End of channel list.");
+	server.sendMessage(client->getFd(), ":" + server.getServerName() + " 323 " + client->getNickname() + " :End of /LIST");
 }
 
 void	handleModeCommand(Server& server, Client* client, const std::string& params) {
