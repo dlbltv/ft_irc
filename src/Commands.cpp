@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/13 17:48:34 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/16 20:12:15 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,11 @@ void handleJoinCommand(Server& server, Client* client, const std::string& params
 	
 	if (channelName.empty()) {
 		server.sendError(client->getFd(), "461", "JOIN :Not enough parameters");
+		return;
+	}
+
+	if (channelName[0] != '#') {
+		server.sendError(client->getFd(), "476", channelName + " :Invalid channel name, must start with '#'");
 		return;
 	}
 	
