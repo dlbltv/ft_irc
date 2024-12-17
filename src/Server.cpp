@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/13 19:12:44 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/17 19:19:09 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,7 +180,7 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 
 	std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 
-	if (command == "CAP")
+	if (command == "CAP" || command == "WHO")
 		return;
 	if (command == "QUIT") {
 		handleQuitCommand(*this, client, params);
