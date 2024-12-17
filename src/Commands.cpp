@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/17 19:14:37 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/17 19:21:55 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -427,7 +427,9 @@ void	handleTopicCommand( Server& server, Client* client, const std::string& para
 
 	std::istringstream	iss(params);
 	std::string			channelName, topic;
-	iss >> channelName >> topic;
+	// iss >> channelName >> topic;
+	getline(iss, channelName, ' ');
+	getline(iss, topic);
 
 	Channel	*channel = server.getChannel(channelName);
 	if (!channel)
