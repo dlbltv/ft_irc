@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/16 20:29:52 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/17 19:14:37 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ void handleJoinCommand(Server& server, Client* client, const std::string& params
 		server.sendError(client->getFd(), "476", channelName + " :Invalid channel name, must start with '#'");
 		return;
 	}
-	
+
 	// Fetch or create the channel
 	Channel*	channel = server.getChannel(channelName);
 	if (!channel) {
@@ -307,7 +307,7 @@ void	handleInviteCommand(Server& server, Client* inviter, const std::string& par
 
 // Lists all channels and their topics, if a channel is specified, it only displays that one
 void handleListCommand(Server &server, Client *client, const std::string &channelName) {
-	server.sendMessage(client->getFd(), ":" + server.getServerName() + " 321 " + client->getNickname() + " Channel :Users Name");
+	server.sendError(client->getFd(), "321", " Channel :Users Name");
 	if (!channelName.empty()) {
 		Channel *channel = server.getChannel(channelName);
 
@@ -315,8 +315,8 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 			std::stringstream sstring;
 			sstring << channel->getMemberCount();
 
-			server.sendMessage(client->getFd(), ":" + server.getServerName() + " 322 " + client->getNickname() + " " +
-				channel->getName() + " " + sstring.str() + " :" + (!channel->getTopic().empty() ? channel->getTopic() : ""));
+			server.sendError(client->getFd(), "322", channel->getName() + " " + sstring.str()
+				+ " :" + (!channel->getTopic().empty() ? channel->getTopic() : ""));
 		}
 	}
 	else {
@@ -325,13 +325,12 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 		for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++) {
 			std::stringstream sstring;
 			sstring << it->second->getMemberCount();
-			server.sendMessage(client->getFd(), ":" + server.getServerName() + " 322 " + client->getNickname() + " " +
-				it->second->getName() + " " + sstring.str() + " :" +
-				(!it->second->getTopic().empty() ? it->second->getTopic() : ""));
+			server.sendError(client->getFd(), "322", it->second->getName() + " " + sstring.str() + " :" +
+				(!it->second->getTopic().empty() ? it->second->getTopic() : " "));
 		}
 
 	}
-	server.sendMessage(client->getFd(), ":" + server.getServerName() + " 323 " + client->getNickname() + " :End of /LIST");
+	server.sendError(client->getFd(), "323", " :End of /LIST");
 }
 
 void	handleModeCommand(Server& server, Client* client, const std::string& params) {
