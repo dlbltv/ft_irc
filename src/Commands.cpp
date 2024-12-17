@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/13 17:48:34 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/17 17:31:24 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,6 +150,15 @@ void	handlePrivmsgCommand(Server& server, Client* sender, const std::string& tar
 		return;
 	}
 
+		// Check if this is a CTCP message (starts and ends with \001)
+	bool isCTCP = false;
+	std::string strippedMessage = message;
+	if (message.size() >= 2 && message[0] == '\001' && message[message.size() - 1] == '\001') {
+		isCTCP = true;
+		// Remove the \001 delimiters
+		strippedMessage = message.substr(1, message.size() - 2);
+	}
+
 	if (target[0] == '#') {
 		Channel*	channel = server.getChannel(target); // Ensure `getChannel` is implemented correctly
 		if (!channel) {
@@ -168,6 +177,28 @@ void	handlePrivmsgCommand(Server& server, Client* sender, const std::string& tar
 			server.sendError(sender->getFd(), "401", target + " :No such nick");
 			return;
 		}
+
+		// If it's a CTCP message, check if it's a DCC SEND
+		if (isCTCP) {
+			std::istringstream iss(strippedMessage);
+			std::string ctcpCommand;
+			iss >> ctcpCommand;
+			if (ctcpCommand == "DCC") {
+				std::string dccSubCommand;
+				iss >> dccSubCommand;
+				if (dccSubCommand == "SEND") {
+					// This is where you'd parse filename, IP, port, and size if needed.
+					// For now, just forward the request as received.
+					// Forward the exact CTCP DCC SEND message to the recipient
+					std::string forwardMsg = ":" + sender->getNickname() + " PRIVMSG " + target + " :" + message + "\r\n";
+					send(recipient->getFd(), forwardMsg.c_str(), forwardMsg.size(), 0);
+					// Optionally, send a notice to sender indicating the request was forwarded
+					server.sendNotice(sender->getFd(), "DCC SEND request forwarded to " + target);
+					return;
+				}
+			}
+		}
+		
 		std::string formattedMessage = ":" + sender->getNickname() + " PRIVMSG " + target + " :" + message + "\r\n";
 		send(recipient->getFd(), formattedMessage.c_str(), formattedMessage.size(), 0);
 	}
