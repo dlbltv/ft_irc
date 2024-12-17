@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/16 18:20:35 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/16 20:29:52 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,11 @@ void handleJoinCommand(Server& server, Client* client, const std::string& params
 		return;
 	}
 
+	if (channelName[0] != '#') {
+		server.sendError(client->getFd(), "476", channelName + " :Invalid channel name, must start with '#'");
+		return;
+	}
+	
 	// Fetch or create the channel
 	Channel*	channel = server.getChannel(channelName);
 	if (!channel) {
@@ -133,12 +138,23 @@ void handleJoinCommand(Server& server, Client* client, const std::string& params
 	std::string joinMessage = ":" + client->getNickname() + " JOIN :" + channelName + "\r\n";
 	channel->broadcast(joinMessage);
 
-	// Send NAMES list to the client
+	// Send the channel topic (RPL_TOPIC or RPL_NOTOPIC)
+	if (channel->isTopicSet()) {
+		std::string topicReply = ":" + server.getServerName() + " 332 " + client->getNickname() +
+								 " " + channelName + " :" + channel->getTopic() + "\r\n";
+		server.sendMessage(client->getFd(), topicReply);
+	} else {
+		std::string noTopicReply = ":" + server.getServerName() + " 331 " + client->getNickname() +
+								   " " + channelName + " :No topic is set\r\n";
+		server.sendMessage(client->getFd(), noTopicReply);
+	}
+
+	// Send NAMES list (RPL_NAMREPLY)
 	std::string namesReply = ":" + server.getServerName() + " 353 " + client->getNickname() +
 							 " = " + channelName + " :" + channel->getMemberList() + "\r\n";
 	server.sendMessage(client->getFd(), namesReply);
 
-	// End of NAMES list
+	// End of NAMES list (RPL_ENDOFNAMES)
 	std::string endNamesReply = ":" + server.getServerName() + " 366 " + client->getNickname() +
 								" " + channelName + " :End of /NAMES list\r\n";
 	server.sendMessage(client->getFd(), endNamesReply);
