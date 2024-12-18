@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/13 17:11:35 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/18 18:17:05 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	Channel::addMember(Client* client) {
 	std::cout << "Client <" << client->getNickname() << "> joined channel " << name << std::endl;
 
 	// Remove invite if the client was invited
-    removeInvite(client->getNickname());
+	removeInvite(client->getNickname());
 }
 
 void	Channel::removeMember(Client* client) {

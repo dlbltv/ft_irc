@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/18 17:44:41 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/18 18:07:19 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -446,8 +446,8 @@ void	handleTopicCommand( Server& server, Client* client, const std::string& para
 		if (!channel->isMember(client))
 			server.sendError(client->getFd(), "442", channelName + " :You're not on that channel");
 		else if (!channel->isTopicRestricted() || (channel->isTopicRestricted() && channel->isOperator(client))) {
-			if (topic[0] == ':')
-			topic.erase(0, 1);
+			if (topic[0] == ':' && topic.length() > 1)
+				topic.erase(0, 1);
 			channel->setTopic(topic);
 			channel->broadcast(":" + client->getNickname() + " TOPIC " + channelName + " :" + topic + "\n", NULL);
 		}
