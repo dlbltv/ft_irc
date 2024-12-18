@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/17 19:29:54 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/18 17:44:41 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -464,6 +464,8 @@ void handleKickCommand(Server& server, Client* kicker, const std::string& params
 
 	std::getline(iss, reason);
 	reason = reason.empty() ? "No reason specified" : reason.substr(1); // Remove leading space
+	if (reason[0] == ':')
+		reason = reason.substr(1);
 
 	if (channelName.empty() || targetNickname.empty()) {
 		server.sendError(kicker->getFd(), "461", "KICK :Not enough parameters");
