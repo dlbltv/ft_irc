@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/18 18:07:19 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/30 18:53:33 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -535,11 +535,8 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 			std::vector<std::string> members;
 			std::string member;
 
-			while (membersStream >> member) {
-				Client* memberClient = server.getClientByNickname(member);
-				std::string prefix = (memberClient && channel->isOperator(memberClient)) ? "@" : "";
-				members.push_back(prefix + member);
-			}
+			while (membersStream >> member)
+				members.push_back(member);
 			namesList[channel->getName()] = members;
 		}
 
@@ -577,11 +574,8 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 			std::vector<std::string> members;
 			std::string member;
 
-			while (membersStream >> member) {
-				Client* memberClient = server.getClientByNickname(member);
-				std::string prefix = (memberClient && channel->isOperator(memberClient)) ? "@" : "";
-				members.push_back(prefix + member);
-			}
+			while (membersStream >> member)
+				members.push_back(member);
 			namesList[channel->getName()] = members;
 		}
 	}

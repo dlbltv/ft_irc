@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/18 19:07:06 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/30 18:49:01 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,6 +140,8 @@ std::string	Channel::getMemberList() const {
 	for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it) {
 		if (!memberList.empty())
 			memberList += " ";
+		if (isOperator(it->second))
+			memberList += "@";
 		memberList += it->second->getNickname();
 	}
 
