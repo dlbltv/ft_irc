@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/17 19:19:09 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/30 18:58:09 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 // Initialize static member
 bool	Server::_signal = false;
 
-Server::Server(int port, const std::string& pass) : port(port), serSocketFd(-1), password(pass), serverName("MyIRCd") {
+Server::Server(int port, const std::string& pass) : port(port), serSocketFd(-1), password(pass), serverName("MyIRC") {
 }
 
 Server::~Server() {

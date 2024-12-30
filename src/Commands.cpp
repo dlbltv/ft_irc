@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/30 18:53:33 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/30 19:05:55 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -526,7 +526,7 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 	std::map<std::string, std::vector<std::string> > namesList;
 
 	// Collect channel members
-	if (channelNames.empty()) {
+	if (channelNames.empty() || (channelNames.size() == 1 && channelNames[0] == server.getServerName())) {
 		// If no channels specified, include all channels
 		std::map<std::string, Channel*>::const_iterator it;
 		for (it = server.getChannels().begin(); it != server.getChannels().end(); ++it) {
@@ -556,13 +556,11 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 					break;
 				}
 			}
-			if (!inChannel) {
+			if (!inChannel)
 				ungroupedUsers.push_back(currentClient->getNickname());
-			}
 		}
-		if (!ungroupedUsers.empty()) {
-			namesList["unchanneled"] = ungroupedUsers;
-		}
+		if (!ungroupedUsers.empty())
+			namesList["*"] = ungroupedUsers;
 	} else {
 		for (std::vector<std::string>::iterator it = channelNames.begin(); it != channelNames.end(); ++it) {
 			Channel* channel = server.getChannel(*it);
@@ -587,7 +585,7 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 		const std::vector<std::string>& members = namesIt->second;
 
 		std::string reply = ":" + server.getServerName() + " 353 " + client->getNickname() +
-  							" = " + channelName + " :";
+							" = " + channelName + " :";
 
 		for (std::vector<std::string>::const_iterator memberIt = members.begin(); memberIt != members.end(); ++memberIt) {
 			reply += *memberIt + " ";
