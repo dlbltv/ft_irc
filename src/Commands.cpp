@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/30 19:05:55 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/30 19:17:11 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -306,20 +306,18 @@ void	handleInviteCommand(Server& server, Client* inviter, const std::string& par
 }
 
 // Lists all channels and their topics, if a channel is specified, it only displays that one
-void handleListCommand(Server &server, Client *client, const std::string &channelName) {
+void handleListCommand( Server &server, Client *client, const std::string &params ) {
 	server.sendError(client->getFd(), "321", " Channel :Users Name");
-	if (!channelName.empty()) {
-		Channel *channel = server.getChannel(channelName);
 
-		if (channel) {
-			std::stringstream sstring;
-			sstring << channel->getMemberCount();
-
-			server.sendError(client->getFd(), "322", channel->getName() + " " + sstring.str()
-				+ " :" + (!channel->getTopic().empty() ? channel->getTopic() : ""));
+	std::vector<std::string> channelNames;
+	if (!params.empty()) {
+		std::istringstream iss(params);
+		std::string channelName;
+		while (std::getline(iss, channelName, ',')) {
+			channelNames.push_back(channelName);
 		}
 	}
-	else {
+	if (channelNames.empty()) {
 		std::map<std::string, Channel*> channels = server.getChannels();
 
 		for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++) {
@@ -329,6 +327,19 @@ void handleListCommand(Server &server, Client *client, const std::string &channe
 				(!it->second->getTopic().empty() ? it->second->getTopic() : " "));
 		}
 
+	}
+	else {
+		for (std::vector<std::string>::iterator it = channelNames.begin(); it != channelNames.end(); it++) {
+			Channel *channel = server.getChannel(*it);
+
+			if (channel) {
+				std::stringstream sstring;
+				sstring << channel->getMemberCount();
+
+				server.sendError(client->getFd(), "322", channel->getName() + " " + sstring.str()
+					+ " :" + (!channel->getTopic().empty() ? channel->getTopic() : ""));
+			}
+		}
 	}
 	server.sendError(client->getFd(), "323", " :End of /LIST");
 }

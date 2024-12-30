@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/30 18:58:09 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/30 19:22:43 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,7 @@ void	Server::processMessage(int fd, const std::string& message) {
 			parseCommand(client, line);
 
 			client = getClientByFd(fd);
-      // V--- Client was removed (QUIT or disconnected)
+		// V--- Client was removed (QUIT or disconnected)
 			if (!client)
 				break;
 		}
