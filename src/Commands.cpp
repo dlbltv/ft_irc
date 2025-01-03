@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/30 19:17:11 by mortins-         ###   ########.fr       */
+/*   Updated: 2025/01/03 18:05:26 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,7 +184,7 @@ void	handlePrivmsgCommand(Server& server, Client* sender, const std::string& tar
 			server.sendError(sender->getFd(), "401", target + " :No such nick");
 			return;
 		}
-		std::string formattedMessage = ":" + sender->getNickname() + " PRIVMSG " + target + " :" + message + "\r\n";
+		std::string formattedMessage = ":" + sender->getNickname() + " PRIVMSG " + target + " :" + (message[0] == ':' ? message.substr(1) : message) + "\r\n";
 		send(recipient->getFd(), formattedMessage.c_str(), formattedMessage.size(), 0);
 	}
 }
