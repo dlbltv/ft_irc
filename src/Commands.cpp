@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/06 14:50:26 by idelibal         ###   ########.fr       */
+/*   Updated: 2025/01/06 15:23:37 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,9 @@ void	handleUserCommand(Server& server, Client* client, const std::string& params
 	}
 
 	client->setUsername(username);
+	client->setHostname(hostname);
+	client->setServername(servername);
+	client->setRealname(realname);
 	client->setHasUsername(true);
 
 	if (client->getAuthenticationStatus() && !client->getNickname().empty())

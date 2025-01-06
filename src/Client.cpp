@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:32:00 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/04 17:01:09 by idelibal         ###   ########.fr       */
+/*   Updated: 2025/01/06 15:20:44 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,19 @@ void	Client::setHasUsername(bool status) {
 	hasUsername = status;
 }
 
+void	Client::setHostname(const std::string& hostname) {
+	this->hostname = hostname;
+}
+
+void	Client::setServername(const std::string& servername) {
+	this->servername = servername;
+}
+
+void	Client::setRealname(const std::string& realname)
+{
+	this->realname = realname;
+}
+
 // -----------------------------------Getters-----------------------------------
 int	Client::getFd() {
 	return fd;
@@ -81,3 +94,20 @@ bool	Client::getHasNickname() {
 bool	Client::getHasUsername() {
 	return hasUsername;
 }
+
+const std::string& Client::getHostname() const
+{
+	return hostname;
+}
+
+const std::string& Client::getServername() const
+{
+	return servername;	
+}
+
+
+const std::string& Client::getRealname() const
+{
+	return realname;
+}
+
