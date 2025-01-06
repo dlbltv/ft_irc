@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/06 15:23:37 by idelibal         ###   ########.fr       */
+/*   Updated: 2025/01/06 15:26:24 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void	handleUserCommand(Server& server, Client* client, const std::string& params
 	if (!realname.empty() && realname[0] == ':')
 		realname.erase(0, 1);
 
-	if (username.empty()) {
+	if (username.empty() || hostname.empty() || servername.empty() || realname.empty()) {
 		server.sendError(client->getFd(), "461", "USER :Not enough parameters");
 		return;
 	}
