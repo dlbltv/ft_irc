@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:32:00 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/06 15:20:44 by idelibal         ###   ########.fr       */
+/*   Updated: 2025/01/06 18:37:10 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,10 @@ void	Client::setHostname(const std::string& hostname) {
 }
 
 void	Client::setServername(const std::string& servername) {
-	this->servername = servername;
+	if (servername == "*")
+		this->servername = "MyIRC";
+	else
+		this->servername = servername;
 }
 
 void	Client::setRealname(const std::string& realname)
