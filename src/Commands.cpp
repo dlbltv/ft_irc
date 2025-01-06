@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/16 20:29:52 by idelibal         ###   ########.fr       */
+/*   Updated: 2025/01/03 18:05:26 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ void handleJoinCommand(Server& server, Client* client, const std::string& params
 	std::istringstream iss(params);
 	std::string channelName, channelKey;
 	iss >> channelName >> channelKey;
-	
+
 	if (channelName.empty()) {
 		server.sendError(client->getFd(), "461", "JOIN :Not enough parameters");
 		return;
@@ -100,7 +100,7 @@ void handleJoinCommand(Server& server, Client* client, const std::string& params
 		server.sendError(client->getFd(), "476", channelName + " :Invalid channel name, must start with '#'");
 		return;
 	}
-	
+
 	// Fetch or create the channel
 	Channel*	channel = server.getChannel(channelName);
 	if (!channel) {
@@ -184,7 +184,7 @@ void	handlePrivmsgCommand(Server& server, Client* sender, const std::string& tar
 			server.sendError(sender->getFd(), "401", target + " :No such nick");
 			return;
 		}
-		std::string formattedMessage = ":" + sender->getNickname() + " PRIVMSG " + target + " :" + message + "\r\n";
+		std::string formattedMessage = ":" + sender->getNickname() + " PRIVMSG " + target + " :" + (message[0] == ':' ? message.substr(1) : message) + "\r\n";
 		send(recipient->getFd(), formattedMessage.c_str(), formattedMessage.size(), 0);
 	}
 }
@@ -233,8 +233,7 @@ void	handleHelpCommand(Server& server, Client* client, const std::string& argume
 	if (argument.empty()) {
 		helpMsg += "\tINVITE    JOIN      KICK      LIST\r\n";
 		helpMsg += "\tMODE      NAMES     NICK      PASS\r\n";
-		helpMsg += "\tPRIVMSG   QUIT\r\n";
-		helpMsg += "\tTOPIC     USER\r\n";
+		helpMsg += "\tPRIVMSG   QUIT      TOPIC     USER\r\n";
 		helpMsg += ":For more details type HELP -l\r\n";
 		server.sendMessage(client->getFd(), helpMsg);
 		return;
@@ -279,7 +278,7 @@ void	handleInviteCommand(Server& server, Client* inviter, const std::string& par
 		server.sendError(inviter->getFd(), "401", targetNickname + " :No such nick");
 		return;
 	}
-	
+
 	Channel* channel = server.getChannel(channelName);
 	if (channel) {
 		if (!channel->isMember(inviter)) {
@@ -307,32 +306,42 @@ void	handleInviteCommand(Server& server, Client* inviter, const std::string& par
 }
 
 // Lists all channels and their topics, if a channel is specified, it only displays that one
-void handleListCommand(Server &server, Client *client, const std::string &channelName) {
-	server.sendMessage(client->getFd(), ":" + server.getServerName() + " 321 " + client->getNickname() + " Channel :Users Name");
-	if (!channelName.empty()) {
-		Channel *channel = server.getChannel(channelName);
+void handleListCommand( Server &server, Client *client, const std::string &params ) {
+	server.sendError(client->getFd(), "321", " Channel :Users Name");
 
-		if (channel) {
-			std::stringstream sstring;
-			sstring << channel->getMemberCount();
-			
-			server.sendMessage(client->getFd(), ":" + server.getServerName() + " 322 " + client->getNickname() + " " +
-				channel->getName() + " " + sstring.str() + " :" + (!channel->getTopic().empty() ? channel->getTopic() : ""));
+	std::vector<std::string> channelNames;
+	if (!params.empty()) {
+		std::istringstream iss(params);
+		std::string channelName;
+		while (std::getline(iss, channelName, ',')) {
+			channelNames.push_back(channelName);
 		}
 	}
-	else {
+	if (channelNames.empty()) {
 		std::map<std::string, Channel*> channels = server.getChannels();
 
 		for (std::map<std::string, Channel*>::iterator it = channels.begin(); it != channels.end(); it++) {
 			std::stringstream sstring;
 			sstring << it->second->getMemberCount();
-			server.sendMessage(client->getFd(), ":" + server.getServerName() + " 322 " + client->getNickname() + " " +
-				it->second->getName() + " " + sstring.str() + " :" +
-				(!it->second->getTopic().empty() ? it->second->getTopic() : ""));
+			server.sendError(client->getFd(), "322", it->second->getName() + " " + sstring.str() + " :" +
+				(!it->second->getTopic().empty() ? it->second->getTopic() : " "));
 		}
 
 	}
-	server.sendMessage(client->getFd(), ":" + server.getServerName() + " 323 " + client->getNickname() + " :End of /LIST");
+	else {
+		for (std::vector<std::string>::iterator it = channelNames.begin(); it != channelNames.end(); it++) {
+			Channel *channel = server.getChannel(*it);
+
+			if (channel) {
+				std::stringstream sstring;
+				sstring << channel->getMemberCount();
+
+				server.sendError(client->getFd(), "322", channel->getName() + " " + sstring.str()
+					+ " :" + (!channel->getTopic().empty() ? channel->getTopic() : ""));
+			}
+		}
+	}
+	server.sendError(client->getFd(), "323", " :End of /LIST");
 }
 
 void	handleModeCommand(Server& server, Client* client, const std::string& params) {
@@ -348,7 +357,7 @@ void	handleModeCommand(Server& server, Client* client, const std::string& params
 	}
 
 	if (modeString.empty()) {
-		server.sendError(client->getFd(), "461", "MODE :Not enough parameters");
+		server.sendError(client->getFd(), "324", channelName + " :" + channel->getModes());
 		return;
 	}
 
@@ -429,7 +438,9 @@ void	handleTopicCommand( Server& server, Client* client, const std::string& para
 
 	std::istringstream	iss(params);
 	std::string			channelName, topic;
-	iss >> channelName >> topic;
+
+	getline(iss, channelName, ' ');
+	getline(iss, topic);
 
 	Channel	*channel = server.getChannel(channelName);
 	if (!channel)
@@ -437,17 +448,19 @@ void	handleTopicCommand( Server& server, Client* client, const std::string& para
 
 	else if (topic.empty()) {
 		if (!channel->isTopicSet())
-			server.sendNotice(client->getFd(), "331 :" + channelName + " :No topic is set\n");
+			server.sendError(client->getFd(), "331", channelName + " :No topic is set");
 		else
-			server.sendNotice(client->getFd(), "332 :" + channelName + " :" + channel->getTopic() + "\n");
+			server.sendError(client->getFd(), "332", channelName + " :" + channel->getTopic());
 	}
 
 	else {
 		if (!channel->isMember(client))
 			server.sendError(client->getFd(), "442", channelName + " :You're not on that channel");
 		else if (!channel->isTopicRestricted() || (channel->isTopicRestricted() && channel->isOperator(client))) {
+			if (topic[0] == ':' && topic.length() > 1)
+				topic.erase(0, 1);
 			channel->setTopic(topic);
-			channel->broadcast(":" + client->getNickname() + " TOPIC " + channelName + " :" + topic + "\n", client);
+			channel->broadcast(":" + client->getNickname() + " TOPIC " + channelName + " :" + topic + "\n", NULL);
 		}
 		else
 			server.sendError(client->getFd(), "482", channelName + " :You're not channel operator");
@@ -459,9 +472,11 @@ void handleKickCommand(Server& server, Client* kicker, const std::string& params
 	std::istringstream iss(params);
 	std::string channelName, targetNickname, reason;
 	iss >> channelName >> targetNickname;
-	
+
 	std::getline(iss, reason);
 	reason = reason.empty() ? "No reason specified" : reason.substr(1); // Remove leading space
+	if (reason[0] == ':')
+		reason = reason.substr(1);
 
 	if (channelName.empty() || targetNickname.empty()) {
 		server.sendError(kicker->getFd(), "461", "KICK :Not enough parameters");
@@ -522,7 +537,7 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 	std::map<std::string, std::vector<std::string> > namesList;
 
 	// Collect channel members
-	if (channelNames.empty()) {
+	if (channelNames.empty() || (channelNames.size() == 1 && channelNames[0] == server.getServerName())) {
 		// If no channels specified, include all channels
 		std::map<std::string, Channel*>::const_iterator it;
 		for (it = server.getChannels().begin(); it != server.getChannels().end(); ++it) {
@@ -531,11 +546,8 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 			std::vector<std::string> members;
 			std::string member;
 
-			while (membersStream >> member) {
-				Client* memberClient = server.getClientByNickname(member);
-				std::string prefix = (memberClient && channel->isOperator(memberClient)) ? "@" : "";
-				members.push_back(prefix + member);
-			}
+			while (membersStream >> member)
+				members.push_back(member);
 			namesList[channel->getName()] = members;
 		}
 
@@ -555,13 +567,11 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 					break;
 				}
 			}
-			if (!inChannel) {
+			if (!inChannel)
 				ungroupedUsers.push_back(currentClient->getNickname());
-			}
 		}
-		if (!ungroupedUsers.empty()) {
-			namesList["unchanneled"] = ungroupedUsers;
-		}
+		if (!ungroupedUsers.empty())
+			namesList["*"] = ungroupedUsers;
 	} else {
 		for (std::vector<std::string>::iterator it = channelNames.begin(); it != channelNames.end(); ++it) {
 			Channel* channel = server.getChannel(*it);
@@ -573,11 +583,8 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 			std::vector<std::string> members;
 			std::string member;
 
-			while (membersStream >> member) {
-				Client* memberClient = server.getClientByNickname(member);
-				std::string prefix = (memberClient && channel->isOperator(memberClient)) ? "@" : "";
-				members.push_back(prefix + member);
-			}
+			while (membersStream >> member)
+				members.push_back(member);
 			namesList[channel->getName()] = members;
 		}
 	}
@@ -589,15 +596,15 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 		const std::vector<std::string>& members = namesIt->second;
 
 		std::string reply = ":" + server.getServerName() + " 353 " + client->getNickname() +
-  							" = " + channelName + " :";
-		
+							" = " + channelName + " :";
+
 		for (std::vector<std::string>::const_iterator memberIt = members.begin(); memberIt != members.end(); ++memberIt) {
 			reply += *memberIt + " ";
 		}
 		reply += "\r\n";
 		server.sendMessage(client->getFd(), reply);
 	}
-	
+
 	std::string endReply = ":" + server.getServerName() + " 366 " + client->getNickname() +
 							" :End of /NAMES list\r\n";
 	server.sendMessage(client->getFd(), endReply);
@@ -606,7 +613,7 @@ void handleNamesCommand(Server& server, Client* client, const std::string& param
 void	handleDieCommand(Server& server, Client* client) {
 
 	bool isGlobalOperator = false;
-	
+
 	for (std::map<std::string, Channel*>::const_iterator it = server.getChannels().begin();
 		it != server.getChannels().end(); ++it) {
 		Channel* channel = it->second;
@@ -615,7 +622,7 @@ void	handleDieCommand(Server& server, Client* client) {
 			break;
 		}
 	}
-	
+
 	if(!isGlobalOperator) {
 		server.sendError(client->getFd(), "481", "DIE :Permission Denied- You're not an IRC operator");
 		return;
@@ -626,8 +633,8 @@ void	handleDieCommand(Server& server, Client* client) {
 	} else {
 		std::cout << "Server is shutting down" << std::endl;
 	}
-	
+
 	server.closeFds();
-	
+
 	exit(0);
 }

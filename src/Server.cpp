@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/12 19:30:42 by idelibal         ###   ########.fr       */
+/*   Updated: 2024/12/30 19:22:43 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 // Initialize static member
 bool	Server::_signal = false;
 
-Server::Server(int port, const std::string& pass) : port(port), serSocketFd(-1), password(pass), serverName("MyIRCd") {
+Server::Server(int port, const std::string& pass) : port(port), serSocketFd(-1), password(pass), serverName("MyIRC") {
 }
 
 Server::~Server() {
@@ -151,12 +151,12 @@ void	Server::processMessage(int fd, const std::string& message) {
 	size_t	pos;
 	while ((pos = client->buffer.find("\n")) != std::string::npos) {
 		std::string line = client->buffer.substr(0, pos);
-		client->buffer.erase(0, pos + 2); // Remove processed line and CRLF
+		client->buffer.erase(0, pos + 1); // Remove processed line and CRLF
 		if (!line.empty()){
 			parseCommand(client, line);
 
 			client = getClientByFd(fd);
-      // V--- Client was removed (QUIT or disconnected)
+		// V--- Client was removed (QUIT or disconnected)
 			if (!client)
 				break;
 		}
@@ -174,13 +174,14 @@ void	Server::parseCommand(Client* client, const std::string& line) {
 		iss >> command;
 	}
 
-	std::getline(iss, params);
+	std::getline(iss, params, '\r');
 	if (!params.empty() && params[0] == ' ')
 		params.erase(0, 1);
 
 	std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 
-
+	if (command == "CAP" || command == "WHO")
+		return;
 	if (command == "QUIT") {
 		handleQuitCommand(*this, client, params);
 		return;

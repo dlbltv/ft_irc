@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/13 17:11:35 by mortins-         ###   ########.fr       */
+/*   Updated: 2024/12/30 18:49:01 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,21 @@ void	Channel::addMember(Client* client) {
 	std::cout << "Client <" << client->getNickname() << "> joined channel " << name << std::endl;
 
 	// Remove invite if the client was invited
-    removeInvite(client->getNickname());
+	removeInvite(client->getNickname());
 }
 
 void	Channel::removeMember(Client* client) {
 	std::cout << "Client <" << client->getNickname() << "> left channel " << name << std::endl;
+	if (isOperator(client))
+		removeOperator(client);
+
+	if (operators.size() == 0 && members.size() > 1) { // Replace operator with another user
+		std::map<int, Client *>::iterator	it = members.begin();
+		if (it->first == client->getFd())
+			it++;
+		addOperator(it->second);
+	}
+
 	if (members.size() == 1)
 		std::cout << "Channel " << name << " deleted" << std::endl;
 	members.erase(client->getFd());
@@ -130,6 +140,8 @@ std::string	Channel::getMemberList() const {
 	for (std::map<int, Client*>::const_iterator it = members.begin(); it != members.end(); ++it) {
 		if (!memberList.empty())
 			memberList += " ";
+		if (isOperator(it->second))
+			memberList += "@";
 		memberList += it->second->getNickname();
 	}
 
