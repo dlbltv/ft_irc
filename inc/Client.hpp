@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:29:30 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/05 18:28:01 by idelibal         ###   ########.fr       */
+/*   Updated: 2025/01/06 15:17:33 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@ class Client {
 		bool		hasProvidedPassword;
 		bool		hasNickname;
 		bool		hasUsername;
+		std::string	hostname;
+		std::string	servername;
+		std::string	realname;
 
 	public:
 		std::string	buffer;	// For incoming message buffering
@@ -42,6 +45,9 @@ class Client {
 		void	setHasProvidedPassword(bool status);
 		void	setHasNickname(bool status);
 		void	setHasUsername(bool status);
+		void	setHostname(const std::string& hostname);
+		void	setServername(const std::string& servername);
+		void	setRealname(const std::string& realname);
 
 		// Getters
 		int			getFd();
@@ -52,6 +58,9 @@ class Client {
 		bool 		getHasProvidedPassword();
 		bool		getHasNickname();
 		bool		getHasUsername();
+		const std::string& getHostname() const;
+		const std::string& getServername() const;
+		const std::string& getRealname() const;
 };
 
 #endif // CLIENT_HPP
