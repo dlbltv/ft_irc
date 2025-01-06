@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/06 16:38:59 by idelibal         ###   ########.fr       */
+/*   Updated: 2025/01/06 18:45:56 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,10 +60,6 @@ void	handleUserCommand(Server& server, Client* client, const std::string& params
 		server.sendError(client->getFd(), "451", "USER :You must provide PASS first");
 		return;
 	}
-	// if (!client->getHasNickname()) {
-	// 	server.sendError(client->getFd(), "451", "USER :You must set a NICK first");
-	// 	return;
-	// }
 	if (params.empty()) {
 		server.sendError(client->getFd(), "461", "USER :Not enough parameters");
 		return;
@@ -73,6 +69,10 @@ void	handleUserCommand(Server& server, Client* client, const std::string& params
 	std::string			username, hostname, servername, realname;
 	iss >> username >> hostname >> servername;
 	std::getline(iss, realname);
+
+	for (size_t i = 0; i < realname.size() && realname[i] == ' '; i++) {
+		realname.erase(0, 1);
+	}
 
 	if (!realname.empty() && realname[0] == ':')
 		realname.erase(0, 1);
