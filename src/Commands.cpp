@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/06 14:17:59 by idelibal         ###   ########.fr       */
+/*   Updated: 2025/01/06 14:50:26 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,9 +33,32 @@ void	handlePassCommand(Server& server, Client* client, const std::string& pass) 
 	}
 }
 
+void	handleNickCommand(Server& server, Client* client, const std::string& nickname) {
+	if (!client->getHasProvidedPassword()) {
+		server.sendError(client->getFd(), "451", "NICK :You must provide PASS first");
+		return;
+	}
+	if (nickname.empty()) {
+		server.sendError(client->getFd(), "431", "NICK :No nickname given");
+		return;
+	}
+	if (!server.isNicknameUnique(nickname)) {
+		server.sendError(client->getFd(), "433", nickname + " :Nickname is already in use");
+		return;
+	}
+
+	client->setNickname(nickname);
+	client->setHasNickname(true);
+	server.sendNotice(client->getFd(), "Nickname set. Please provide your USER details.");
+}
+
 void	handleUserCommand(Server& server, Client* client, const std::string& params) {
 	if (!client->getHasProvidedPassword()) {
 		server.sendError(client->getFd(), "451", "USER :You must provide PASS first");
+		return;
+	}
+	if (!client->getHasNickname()) {
+		server.sendError(client->getFd(), "451", "USER :You must set a NICK first");
 		return;
 	}
 	if (params.empty()) {
@@ -58,34 +81,10 @@ void	handleUserCommand(Server& server, Client* client, const std::string& params
 
 	client->setUsername(username);
 	client->setHasUsername(true);
-	server.sendNotice(client->getFd(), "USER set. Please provide your NICK details.");
-}
-
-void	handleNickCommand(Server& server, Client* client, const std::string& nickname) {
-	if (!client->getHasProvidedPassword()) {
-		server.sendError(client->getFd(), "451", "NICK :You must provide PASS first");
-		return;
-	}
-	if (!client->getHasUsername()) {
-		server.sendError(client->getFd(), "451", "NICK :You must set a USER first");
-		return;
-	}
-	if (nickname.empty()) {
-		server.sendError(client->getFd(), "431", "NICK :No nickname given");
-		return;
-	}
-	if (!server.isNicknameUnique(nickname)) {
-		server.sendError(client->getFd(), "433", nickname + " :Nickname is already in use");
-		return;
-	}
-
-	client->setNickname(nickname);
-	client->setHasNickname(true);
 
 	if (client->getAuthenticationStatus() && !client->getNickname().empty())
 		server.sendWelcomeMessage(client);
 }
-
 
 void handleJoinCommand(Server& server, Client* client, const std::string& params) {
 	std::istringstream iss(params);
