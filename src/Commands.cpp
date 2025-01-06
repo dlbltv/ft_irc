@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/03 18:05:26 by mortins-         ###   ########.fr       */
+/*   Updated: 2025/01/06 18:45:56 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,16 +49,15 @@ void	handleNickCommand(Server& server, Client* client, const std::string& nickna
 
 	client->setNickname(nickname);
 	client->setHasNickname(true);
-	server.sendNotice(client->getFd(), "Nickname set. Please provide your USER details.");
+	if (client->getAuthenticationStatus() && client->getHasUsername())
+		server.sendWelcomeMessage(client);
+	else
+		server.sendNotice(client->getFd(), "Nickname set. Please set your USER.");
 }
 
 void	handleUserCommand(Server& server, Client* client, const std::string& params) {
 	if (!client->getHasProvidedPassword()) {
 		server.sendError(client->getFd(), "451", "USER :You must provide PASS first");
-		return;
-	}
-	if (!client->getHasNickname()) {
-		server.sendError(client->getFd(), "451", "USER :You must set a NICK first");
 		return;
 	}
 	if (params.empty()) {
@@ -71,19 +70,28 @@ void	handleUserCommand(Server& server, Client* client, const std::string& params
 	iss >> username >> hostname >> servername;
 	std::getline(iss, realname);
 
+	for (size_t i = 0; i < realname.size() && realname[i] == ' '; i++) {
+		realname.erase(0, 1);
+	}
+
 	if (!realname.empty() && realname[0] == ':')
 		realname.erase(0, 1);
 
-	if (username.empty()) {
+	if (username.empty() || hostname.empty() || servername.empty() || realname.empty()) {
 		server.sendError(client->getFd(), "461", "USER :Not enough parameters");
 		return;
 	}
 
 	client->setUsername(username);
+	client->setHostname(hostname);
+	client->setServername(servername);
+	client->setRealname(realname);
 	client->setHasUsername(true);
 
-	if (client->getAuthenticationStatus() && !client->getNickname().empty())
+	if (client->getAuthenticationStatus() && client->getHasNickname())
 		server.sendWelcomeMessage(client);
+	else
+		server.sendNotice(client->getFd(), "USER set. Please set your NICK.");
 }
 
 void handleJoinCommand(Server& server, Client* client, const std::string& params) {
