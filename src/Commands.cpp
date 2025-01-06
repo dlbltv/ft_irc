@@ -6,7 +6,7 @@
 /*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/06 15:26:24 by idelibal         ###   ########.fr       */
+/*   Updated: 2025/01/06 16:38:59 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,10 @@ void	handleNickCommand(Server& server, Client* client, const std::string& nickna
 
 	client->setNickname(nickname);
 	client->setHasNickname(true);
-	server.sendNotice(client->getFd(), "Nickname set. Please provide your USER details.");
+	if (client->getAuthenticationStatus() && client->getHasUsername())
+		server.sendWelcomeMessage(client);
+	else
+		server.sendNotice(client->getFd(), "Nickname set. Please set your USER.");
 }
 
 void	handleUserCommand(Server& server, Client* client, const std::string& params) {
@@ -57,10 +60,10 @@ void	handleUserCommand(Server& server, Client* client, const std::string& params
 		server.sendError(client->getFd(), "451", "USER :You must provide PASS first");
 		return;
 	}
-	if (!client->getHasNickname()) {
-		server.sendError(client->getFd(), "451", "USER :You must set a NICK first");
-		return;
-	}
+	// if (!client->getHasNickname()) {
+	// 	server.sendError(client->getFd(), "451", "USER :You must set a NICK first");
+	// 	return;
+	// }
 	if (params.empty()) {
 		server.sendError(client->getFd(), "461", "USER :Not enough parameters");
 		return;
@@ -85,8 +88,10 @@ void	handleUserCommand(Server& server, Client* client, const std::string& params
 	client->setRealname(realname);
 	client->setHasUsername(true);
 
-	if (client->getAuthenticationStatus() && !client->getNickname().empty())
+	if (client->getAuthenticationStatus() && client->getHasNickname())
 		server.sendWelcomeMessage(client);
+	else
+		server.sendNotice(client->getFd(), "USER set. Please set your NICK.");
 }
 
 void handleJoinCommand(Server& server, Client* client, const std::string& params) {
