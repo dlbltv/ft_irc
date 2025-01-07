@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/06 18:45:56 by mortins-         ###   ########.fr       */
+/*   Updated: 2025/01/07 18:46:41 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -293,7 +293,7 @@ void	handleInviteCommand(Server& server, Client* inviter, const std::string& par
 			server.sendError(inviter->getFd(), "442", channelName + " :You're not member of that channel");
 			return;
 		}
-		if (!channel->isOperator(inviter)) {
+		if (channel->isInviteOnly() && !channel->isOperator(inviter)) {
 			server.sendError(inviter->getFd(), "482", channelName + " :You're not a channel operator of that channel");
 			return;
 		}
