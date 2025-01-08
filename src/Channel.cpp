@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/30 18:49:01 by mortins-         ###   ########.fr       */
+/*   Updated: 2025/01/08 20:55:53 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,6 @@ void	Channel::removeMember(Client* client) {
 			it++;
 		addOperator(it->second);
 	}
-
-	if (members.size() == 1)
-		std::cout << "Channel " << name << " deleted" << std::endl;
 	members.erase(client->getFd());
 }
 

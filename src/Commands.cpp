@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/08 18:05:47 by mortins-         ###   ########.fr       */
+/*   Updated: 2025/01/08 20:51:58 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,7 +208,7 @@ void	handleQuitCommand(Server& server, Client* client, const std::string& messag
 
 	// Notify all channels and remove the client
 	for (std::map<std::string, Channel*>::iterator it = server.getChannels().begin();
-		it != server.getChannels().end(); ++it) {
+		it != server.getChannels().end();) {
 		Channel* channel = it->second;
 		if (channel->isMember(client))
 		{
@@ -217,7 +217,16 @@ void	handleQuitCommand(Server& server, Client* client, const std::string& messag
 
 			// Remove the quitting client from the channel
 			channel->removeMember(client);
+
+			if (channel->getMemberCount() == 0)
+			{
+				std::string chanName = it->first;
+				++it;
+				server.deleteChannel(chanName);
+				continue;
+			}
 		}
+		++it;
 	}
 
 	// Notify the client
