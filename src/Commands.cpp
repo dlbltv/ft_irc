@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/08 17:48:27 by mortins-         ###   ########.fr       */
+/*   Updated: 2025/01/08 17:55:33 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,15 +146,11 @@ void handleJoinCommand(Server& server, Client* client, const std::string& params
 	std::string joinMessage = ":" + client->getNickname() + " JOIN :" + channelName + "\r\n";
 	channel->broadcast(joinMessage);
 
-	// Send the channel topic (RPL_TOPIC or RPL_NOTOPIC)
+	// Send the channel topic (RPL_TOPIC) if topic is set
 	if (channel->isTopicSet()) {
 		std::string topicReply = ":" + server.getServerName() + " 332 " + client->getNickname() +
 								 " " + channelName + " :" + channel->getTopic() + "\r\n";
 		server.sendMessage(client->getFd(), topicReply);
-	} else {
-		std::string noTopicReply = ":" + server.getServerName() + " 331 " + client->getNickname() +
-								   " " + channelName + " :No topic is set\r\n";
-		server.sendMessage(client->getFd(), noTopicReply);
 	}
 
 	// Send NAMES list (RPL_NAMREPLY)
