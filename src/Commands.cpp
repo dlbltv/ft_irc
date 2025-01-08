@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/07 18:46:41 by mortins-         ###   ########.fr       */
+/*   Updated: 2025/01/08 17:48:27 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -435,7 +435,7 @@ void	handleModeCommand(Server& server, Client* client, const std::string& params
 	}
 	// Notify the channel about the mode change
 	std::string modeMessage = ":" + client->getNickname() + " MODE " + channelName + " " + modeString + " " + modeParam + "\r\n";
-	channel->broadcast(modeMessage, client);
+	channel->broadcast(modeMessage);
 }
 
 void	handleTopicCommand( Server& server, Client* client, const std::string& params) {
