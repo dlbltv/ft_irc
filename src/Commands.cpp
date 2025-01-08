@@ -6,7 +6,7 @@
 /*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/06 18:45:56 by mortins-         ###   ########.fr       */
+/*   Updated: 2025/01/08 18:05:47 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,15 +146,11 @@ void handleJoinCommand(Server& server, Client* client, const std::string& params
 	std::string joinMessage = ":" + client->getNickname() + " JOIN :" + channelName + "\r\n";
 	channel->broadcast(joinMessage);
 
-	// Send the channel topic (RPL_TOPIC or RPL_NOTOPIC)
+	// Send the channel topic (RPL_TOPIC) if topic is set
 	if (channel->isTopicSet()) {
 		std::string topicReply = ":" + server.getServerName() + " 332 " + client->getNickname() +
 								 " " + channelName + " :" + channel->getTopic() + "\r\n";
 		server.sendMessage(client->getFd(), topicReply);
-	} else {
-		std::string noTopicReply = ":" + server.getServerName() + " 331 " + client->getNickname() +
-								   " " + channelName + " :No topic is set\r\n";
-		server.sendMessage(client->getFd(), noTopicReply);
 	}
 
 	// Send NAMES list (RPL_NAMREPLY)
@@ -293,7 +289,7 @@ void	handleInviteCommand(Server& server, Client* inviter, const std::string& par
 			server.sendError(inviter->getFd(), "442", channelName + " :You're not member of that channel");
 			return;
 		}
-		if (!channel->isOperator(inviter)) {
+		if (channel->isInviteOnly() && !channel->isOperator(inviter)) {
 			server.sendError(inviter->getFd(), "482", channelName + " :You're not a channel operator of that channel");
 			return;
 		}
@@ -406,6 +402,8 @@ void	handleModeCommand(Server& server, Client* client, const std::string& params
 				server.sendError(client->getFd(), "441", modeParam + " :Client is not a member of the channel");
 				return;
 			}
+			if ((adding && channel->isOperator(targetClient)) || (!adding && !channel->isOperator(targetClient)))
+				return;
 			if (adding) {
 				channel->addOperator(targetClient);
 			} else {
@@ -435,7 +433,7 @@ void	handleModeCommand(Server& server, Client* client, const std::string& params
 	}
 	// Notify the channel about the mode change
 	std::string modeMessage = ":" + client->getNickname() + " MODE " + channelName + " " + modeString + " " + modeParam + "\r\n";
-	channel->broadcast(modeMessage, client);
+	channel->broadcast(modeMessage);
 }
 
 void	handleTopicCommand( Server& server, Client* client, const std::string& params) {
