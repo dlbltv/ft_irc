@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
+/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:59 by idelibal          #+#    #+#             */
-/*   Updated: 2024/12/30 19:22:43 by mortins-         ###   ########.fr       */
+/*   Updated: 2025/01/08 20:56:10 by idelibal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ void	Server::receiveNewData(int fd) {
 	if (bytes <= 0) {
 		std::string quitMsg = ":" + getClientByFd(fd)->getNickname() + ": Client disconnected\r\n";
 		for (std::map<std::string, Channel*>::iterator it = getChannels().begin();
-			it != getChannels().end(); ++it) {
+			it != getChannels().end();) {
 			Channel* channel = it->second;
 			if (channel->isMember(getClientByFd(fd)))
 			{
@@ -123,7 +123,16 @@ void	Server::receiveNewData(int fd) {
 
 				// Remove the quitting client from the channel
 				channel->removeMember(getClientByFd(fd));
+
+				if (channel->getMemberCount() == 0)
+				{
+					std::string chanName = it->first;
+					++it;
+					deleteChannel(chanName);
+					continue;
+				}
 			}
+			++it;
 		}
 
 		// Notify the client
@@ -281,9 +290,14 @@ void	Server::signalHandler(int signum) {
 }
 
 void	Server::deleteChannel(const std::string& channelName) {
-	Channel*	channel = channels[channelName];
-	delete channel; // Free the memory for the channel
-	channels.erase(channelName); // Remove the channel from the map
+	std::map<std::string, Channel*>::iterator it = channels.find(channelName);
+	if (it != channels.end()) {
+		std::string name = it->first;
+		Channel* ch = it->second;
+		channels.erase(it); // Remove the channel from the map	
+		delete ch; // Free the memory allocated for the Channel object
+		std::cout << "Channel " << channelName << " deleted." << std::endl;
+	}
 }
 
 void	Server::closeFds() {
