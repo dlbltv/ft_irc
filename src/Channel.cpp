@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:26:51 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/08 20:55:53 by idelibal         ###   ########.fr       */
+/*   Updated: 2025/01/15 17:05:00 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,25 @@ void	Channel::removeMember(Client* client) {
 		if (it->first == client->getFd())
 			it++;
 		addOperator(it->second);
+
+		for (std::map<int, Client *>::iterator it = members.begin(); it != members.end(); it++) {
+			if (it->second && it->second != client) {
+				std::string memberlist = getMemberList();
+
+				// remove the exiting client from names list
+				memberlist = memberlist.substr(0, memberlist.find(client->getNickname())) + memberlist.substr(
+					memberlist.find_first_of(' ', memberlist.find(client->getNickname())) != std::string::npos ?
+					memberlist.find_first_of(' ', memberlist.find(client->getNickname())) + 1 : memberlist.length());
+
+				std::string namesReply = ":MyIRC 353 " + it->second->getNickname() + " = " + name + " :" +
+					(memberlist[0] == ' ' ? memberlist.substr(1) : memberlist) + "\r\n";
+
+				// send the names message with the new operator
+				send(it->first, namesReply.c_str(), namesReply.size(), 0);
+				std::string endNamesReply = ":MyIRC 366 " + it->second->getNickname() + " " + name + " :End of /NAMES list\r\n";
+				send(it->first, endNamesReply.c_str(), endNamesReply.size(), 0);
+			}
+		}
 	}
 	members.erase(client->getFd());
 }
