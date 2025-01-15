@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:39:26 by idelibal          #+#    #+#             */
-/*   Updated: 2024/11/26 17:37:13 by idelibal         ###   ########.fr       */
+/*   Updated: 2025/01/15 17:11:16 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ int	main(int argc, char* argv[])
 	}
 
 	int	port = std::atoi(argv[1]);
-	if (port <= 0) {
+	if (port <= 0 || port > 65535) {
 		std::cerr << "Invalid port number." << std::endl;
 		return 1;
 	}
