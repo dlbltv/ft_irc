@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Commands.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: idelibal <idelibal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mortins- <mortins-@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/25 17:33:21 by idelibal          #+#    #+#             */
-/*   Updated: 2025/01/08 20:51:58 by idelibal         ###   ########.fr       */
+/*   Updated: 2025/01/15 15:54:39 by mortins-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,7 +181,7 @@ void	handlePrivmsgCommand(Server& server, Client* sender, const std::string& tar
 			server.sendError(sender->getFd(), "404", target + " :You are not a member of this channel");
 			return;
 		}
-		channel->broadcast(":" + sender->getNickname() + " PRIVMSG " + target + " :" + message + "\r\n", sender);
+		channel->broadcast(":" + sender->getNickname() + " PRIVMSG " + target + " :" + (message[0] == ':' ? message.substr(1) : message) + "\r\n", sender);
 	} else {
 		Client*	recipient = server.getClientByNickname(target); // This should now link correctly
 		if (!recipient) {
